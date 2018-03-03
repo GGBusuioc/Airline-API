@@ -4,4 +4,6 @@ from . import views
 
 
 app_name = 'airlineapp'
-urlpatterns = []
+urlpatterns = [
+    path('findflight/', views.findflight),
+]

@@ -46,7 +46,8 @@ class Booking(models.Model):
     # passengers
     passenger = models.ForeignKey('Passenger', on_delete=models.CASCADE)
     # status of this booking (ONHOLD, CONFIRMED, CANCELLED, or TRAVELLED)
-    status = (('ONHOLD'),('CONFIRMED'),('CANCELLED'),('TRAVELLED'))
+    STATUS_CHOICES = (('ONHOLD', 'ONHOLD'), ('CONFIRMED','CONFIRMED'), ('CANCELLED', 'CANCELLED'), ('TRAVELLED','TRAVELLED'))
+    status = models.CharField(max_length=10,choices=STATUS_CHOICES, default='ONHOLD')
     #  time this booking will no longer be valid if the status of the booking is ONHOLD.
     time_to_complete = models.TimeField(default="unspecified")
 
