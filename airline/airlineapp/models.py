@@ -6,43 +6,50 @@ class Aircraft(models.Model):
     # aircraft type (e.g. Airbus A320)
     aircraft_type = models.CharField(max_length=20, default="unspecified")
     # unique tail or registration number (e.g. G-STBA)
-    registration_number = models.CharField(max_length=10, unique=True)
+    aircraft_registration_number = models.CharField(max_length=10, unique=True)
     # number of seats (e.g. 150)
-    number_seats = models.IntegerField(default="unspecified")
+    aircraft_number_seats = models.IntegerField(default="unspecified")
 
 class Airport(models.Model):
     # airport unique name (e.g. New York JFK)
-    name = models.CharField(max_length=50, unique=True)
+    airport_name = models.CharField(max_length=50, unique=True)
     # country (e.g. USA)
-    country = models.CharField(max_length=50, default="unspecified")
+    airport_country = models.CharField(max_length=50, default="unspecified")
     # time zone of the airport (e.g. 'USA EASTERN EST')
-    time_zone = models.CharField(max_length=50, default="unspecified")
+    airport_time_zone = models.CharField(max_length=50, default="unspecified")
 
 class Flight(models.Model):
     # flight number (e.g. BA1349)
-    number = models.CharField(max_length=10, default="unspecified")
+    flight_number = models.CharField(max_length=10, default="unspecified")
     # departue airport (e.g. London Heathrow LHR)
     departue_airport = models.CharField(max_length=50, default="unspecified")
     # destination airport (e.g. New York JFK)
     destination_airport = models.CharField(max_length=50, default="unspecified")
     # departure date-time (e.g. 2018.04.01, 14:45:00)
-    departue_datetime = models.DateTimeField(default="unspecified")
-    # arrival date-time (e.g. 2018.04.01, 20:30:00)
-    arrival_datetime = models.DateTimeField(default="unspecified")
+    # departue_datetime = models.DateTimeField(default="unspecified")
+    # # arrival date-time (e.g. 2018.04.01, 20:30:00)
+    # arrival_datetime = models.DateTimeField(default="unspecified")
     #  flight duration (e.g. 5:15:00, i.e. 5 hours and 15 minutes)
-    duration = models.DurationField(default="unspecified")
+    #duration = models.DurationField(default="unspecified")
+
     # aircraft type used for this flight (a foreign key to aircraft table)
-    aircraft_type = models.ForeignKey('Aircraft', on_delete=models.CASCADE)
+    #aircraft_type = models.ForeignKey('Aircraft', on_delete=models.CASCADE)
+
     # price of a single seat on this Flight
-    ticket_price = models.FloatField(default="unspecified")
+    #ticket_price = models.FloatField(default="unspecified")
+
+    def __str__(self):
+        return ("%s" % (self.flight_number))
+
+
 
 class Booking(models.Model):
     # unique booking number (e.g. WXY12Z)
-    number = models.CharField(max_length=10, unique=True)
+    booking_number = models.CharField(max_length=10, unique=True)
     # flight associated with this booking (a foreign key to the flights table)
-    flight = models.ForeignKey('Flight', on_delete=models.CASCADE)
+    booking_flight = models.ForeignKey('Flight', on_delete=models.CASCADE)
     # number of seats booked.
-    number_booked = models.IntegerField(default="unspecified")
+    booking_seats_number = models.IntegerField(default="unspecified")
     # passengers
     passenger = models.ForeignKey('Passenger', on_delete=models.CASCADE)
     # status of this booking (ONHOLD, CONFIRMED, CANCELLED, or TRAVELLED)

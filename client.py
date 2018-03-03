@@ -10,11 +10,11 @@ while process_complete == False:
     print("=====================================")
     print("1. Find a flight")
     action = 'findflight'
-    print("Pick a DEPARTUE AIRPORT,  DESTINATION AIPORT and DATE")
+    print("Pick a DEPARTUE AIRPORT,  DESTINATION AIPORT")
     user_input = input()
     # /findflight/departue_airport/destination_airport/date/
     try:
-        departue, destination, date = user_input.split(" ")
+        departue, destination = user_input.split(" ")
     except ValueError:
         print("Please provide all the required parameters")
 
@@ -24,9 +24,11 @@ while process_complete == False:
     payload = {
         'departue_airport' : departue,
         'destination_airport': destination,
-        'date': date,
+        #'date': date,
     }
-    #headers = {'content-type': 'application/json; charset=utf-8'}
 
     r = requests.get(url, data=json.dumps(payload))
-    print(r.json())
+
+    flights = json.loads(r.json())
+    for flight in flights:
+        print(flight)
