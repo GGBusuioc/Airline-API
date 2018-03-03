@@ -22,5 +22,7 @@ def findflight(request, format=None):
 
     # How to serialize a queryset object
     #data = serializers.serialize('json', list(all_entries), fields=('flight_number'))
-
-    return JsonResponse(json.dumps(flight_numbers), safe=False)
+    if flight_numbers:
+        return JsonResponse(json.dumps(flight_numbers), safe=False)
+    else:
+        return HttpResponse("Seems like nothing was found",status=503)

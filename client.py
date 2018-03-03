@@ -28,7 +28,9 @@ while process_complete == False:
     }
 
     r = requests.get(url, data=json.dumps(payload))
-
-    flights = json.loads(r.json())
-    for flight in flights:
-        print(flight)
+    try:
+        flights = json.loads(r.json())
+        for flight in flights:
+            print(flight)
+    except ValueError:
+        print("Nothing was found. A reason plus the payload. ")
