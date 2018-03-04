@@ -25,6 +25,7 @@ class Flight(models.Model):
     destination_airport = models.CharField(max_length=50, default="unspecified")
     # departure date-time (e.g. 2018.04.01, 14:45:00)
     departue_datetime = models.DateTimeField(default=timezone.now)
+
     # # arrival date-time (e.g. 2018.04.01, 20:30:00)
     # arrival_datetime = models.DateTimeField(default="unspecified")
     #  flight duration (e.g. 5:15:00, i.e. 5 hours and 15 minutes)
