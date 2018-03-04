@@ -3,6 +3,7 @@ from django.http import HttpResponse, JsonResponse
 import json
 from .models import *
 from django.core import serializers
+from bson import json_util
 
 # Create your views here.
 
@@ -16,13 +17,21 @@ def findflight(request, format=None):
 
     all_entries = Flight.objects.filter(departue_airport=departue_airport, destination_airport=destination_airport)
 
-    flight_numbers = []
+    flight_results = []
+
     for entry in all_entries:
-        flight_numbers.append(entry.flight_number)
+        flight_result = []
+        flight_result.append(entry.flight_number)
+        flight_result.append(entry.departue_airport)
+        flight_result.append(entry.destination_airport)
+        flight_result.append(entry.departue_datetime)
+        flight_results.append(flight_result)
+
+
 
     # How to serialize a queryset object
     #data = serializers.serialize('json', list(all_entries), fields=('flight_number'))
-    if flight_numbers:
-        return JsonResponse(json.dumps(flight_numbers), safe=False)
+    if flight_results:
+        return JsonResponse(json.dumps(flight_results, default=json_util.default), safe=False)
     else:
         return HttpResponse("Seems like nothing was found",status=503)
