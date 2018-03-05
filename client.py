@@ -12,11 +12,11 @@ while process_complete == False:
     #print("=====================================")
     print("1. Find a flight")
     action = 'findflight'
-    print("Pick a DEPARTUE AIRPORT,  DESTINATION AIPORT, DATE (MM-DD-YYYY), NUMBER OF PASSENGERS, FLEXIBLE OR NOT")
+    print("Pick a DEPARTUE AIRPORT,  DESTINATION AIPORT, DATE (YYYY-MM-DD), NUMBER OF PASSENGERS, FLEXIBLE (Y or N only)")
     user_input = input()
     # /findflight/departue_airport/destination_airport/date/
     try:
-        departue, destination, date = user_input.split(" ")
+        departue, destination, date, number_of_tickets, is_flexible = user_input.split(" ")
     except ValueError:
         print("Please provide all the required parameters")
 
@@ -27,9 +27,12 @@ while process_complete == False:
         'departue_airport' : departue,
         'destination_airport': destination,
         'date': date,
+        'number_of_tickets': number_of_tickets,
+        'is_flexible': is_flexible,
     }
 
     r = requests.get(url, data=json.dumps(payload))
+
     try:
         flights = json.loads(r.json(), object_hook=json_util.object_hook)
         print("*************************************")
@@ -38,7 +41,7 @@ while process_complete == False:
                 if(type(field)!=datetime.datetime):
                     print(field, end=" ")
                 else:
-                    print("at %d and %d minutes" % (field.hour, field.minute))
+                    print("%d/%d/%d at %d and %d minutes" % (field.year, field.month, field.day, field.hour, field.minute))
             print("\n")
         print("*************************************")
         # s = field

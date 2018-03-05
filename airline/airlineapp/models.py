@@ -8,6 +8,9 @@ class Aircraft(models.Model):
     # number of seats (e.g. 150)
     aircraft_number_seats = models.IntegerField(default="unspecified")
 
+    def __str__(self):
+        return ("%s" % (self.aircraft_type))
+        
 class Airport(models.Model):
     # airport unique name (e.g. New York JFK)
     airport_name = models.CharField(max_length=50, unique=True)
@@ -25,17 +28,14 @@ class Flight(models.Model):
     destination_airport = models.CharField(max_length=50, default="unspecified")
     # departure date-time (e.g. 2018.04.01, 14:45:00)
     departue_datetime = models.DateTimeField(default=timezone.now)
-
-    # # arrival date-time (e.g. 2018.04.01, 20:30:00)
-    # arrival_datetime = models.DateTimeField(default="unspecified")
+    # arrival date-time (e.g. 2018.04.01, 20:30:00)
+    arrival_datetime = models.DateTimeField(default=timezone.now)
     #  flight duration (e.g. 5:15:00, i.e. 5 hours and 15 minutes)
-    #duration = models.DurationField(default="unspecified")
-
+    duration = models.DurationField(default=0)
     # aircraft type used for this flight (a foreign key to aircraft table)
-    #aircraft_type = models.ForeignKey('Aircraft', on_delete=models.CASCADE)
-
+    aircraft_type = models.ForeignKey('Aircraft', null="True", on_delete=models.CASCADE)
     # price of a single seat on this Flight
-    #ticket_price = models.FloatField(default="unspecified")
+    ticket_price = models.FloatField(default=0)
 
     def __str__(self):
         return ("%s" % (self.flight_number))
