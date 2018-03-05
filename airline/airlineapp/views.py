@@ -11,12 +11,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 
-def convert_timedelta(duration):
-    days, seconds = duration.days, duration.seconds
-    hours = days * 24 + seconds // 3600
-    minutes = (seconds % 3600) // 60
-    seconds = (seconds % 60)
-    return hours, minutes, seconds
 
 def findflight(request, format=None):
     if request.method =="GET":
@@ -47,26 +41,36 @@ def findflight(request, format=None):
         flight_results = []
 
         for entry in all_entries:
-            flight_result = []
-            # converting the duration to hours and minutes
-            hours, minutes, seconds = convert_timedelta(entry.duration)
-            duration = (hours, minutes)
+            flight_result = {}
 
-            flight_result.append(entry.id)
-            flight_result.append(entry.flight_num)
-            flight_result.append(str(dep_airport))
-            flight_result.append(str(dest_airport))
-            flight_result.append(entry.dep_datetime)
-            flight_result.append(entry.arr_datetime)
-            flight_result.append(duration)
-            flight_result.append(entry.price)
+
+            flight_result['id'] = entry.pk
+            flight_result['flight_num'] = entry.flight_num
+            flight_result['dep_airport'] = str(dep_airport)
+            flight_result['dest_airport'] = str(dest_airport)
+            flight_result['dep_datetime'] = str(entry.dep_datetime)
+            flight_result['arr_datetime'] = str(entry.arr_datetime)
+            flight_result['duration'] = str(entry.duration)
+            flight_result['price'] = entry.price
             flight_results.append(flight_result)
+
+
+            # flight_result.append(entry.id)
+            # flight_result.append(entry.flight_num)
+            # flight_result.append(str(dep_airport))
+            # flight_result.append(str(dest_airport))
+            # flight_result.append(entry.dep_datetime)
+            # flight_result.append(entry.arr_datetime)
+            # flight_result.append(duration)
+            # flight_result.append(entry.price)
+            # flight_results.append(flight_result)
 
         # How to serialize a queryset object
         #data = serializers.serialize('json', list(all_entries), fields=('flight_number'))
 
         if flight_results:
-            return JsonResponse(json.dumps(flight_results, default=json_util.default), safe=False)
+            #return JsonResponse(json.dumps(flight_results, default=json_util.default), safe=True)
+            return HttpResponse(json.dumps(flight_results))
         else:
             return HttpResponse("Seems like nothing was found", status=503)
 
