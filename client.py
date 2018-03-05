@@ -16,7 +16,7 @@ while process_complete == False:
     user_input = input()
     # /findflight/departue_airport/destination_airport/date/
     try:
-        departue, destination, date, number_of_tickets, is_flexible = user_input.split(" ")
+        dep_airport, dest_airport, dep_date, num_passengers, is_flex = user_input.split(" ")
     except ValueError:
         print("Please provide all the required parameters")
 
@@ -24,30 +24,30 @@ while process_complete == False:
     #print("This is your json object: " + json_str)
     url = 'http://localhost:8000/findflight/'
     payload = {
-        'departue_airport' : departue,
-        'destination_airport': destination,
-        'date': date,
-        'number_of_tickets': number_of_tickets,
-        'is_flexible': is_flexible,
+        'dep_airport' : dep_airport,
+        'dest_airport': dest_airport,
+        'dep_date': dep_date,
+        'num_passengers': num_passengers,
+        'is_flex': is_flex,
     }
 
-    r = requests.get(url, data=json.dumps(payload))
 
+
+    r = requests.get(url, data=json.dumps(payload))
     try:
         flights = json.loads(r.json(), object_hook=json_util.object_hook)
         print("*************************************")
+        print("FLIGHT ID | FLIGHT NR | DEP AIR | DEST AIR | DEP D&T | ARI D&T | DURATION [H, M] | PRICE £")
+        print("\n")
         for result in flights:
             for field in result:
                 if(type(field)!=datetime.datetime):
-                    print(field, end=" ")
+                    print("%s |" % (field), end=" ")
                 else:
-                    print("%d/%d/%d at %d and %d minutes" % (field.year, field.month, field.day, field.hour, field.minute))
+                    print("%d/%d/%d H:%d M:%d |" % (field.year, field.month, field.day, field.hour, field.minute), end=" ")
             print("\n")
         print("*************************************")
-        # s = field
-        # print(s)
-        # s.strftime('%m/%d/%Y')
-        # print(s)
+
 
     except ValueError:
         print("Nothing was found. A reason plus the payload. ")

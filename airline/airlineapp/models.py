@@ -10,7 +10,7 @@ class Aircraft(models.Model):
 
     def __str__(self):
         return ("%s" % (self.aircraft_type))
-        
+
 class Airport(models.Model):
     # airport unique name (e.g. New York JFK)
     airport_name = models.CharField(max_length=50, unique=True)
@@ -18,27 +18,29 @@ class Airport(models.Model):
     airport_country = models.CharField(max_length=50, default="unspecified")
     # time zone of the airport (e.g. 'USA EASTERN EST')
     airport_time_zone = models.CharField(max_length=50, default="unspecified")
+    def __str__(self):
+        return ("%s" % (self.airport_name))
 
 class Flight(models.Model):
     # flight number (e.g. BA1349)
-    flight_number = models.CharField(max_length=10, default="unspecified")
+    flight_num = models.CharField(max_length=10, default="unspecified")
     # departue airport (e.g. London Heathrow LHR)
-    departue_airport = models.CharField(max_length=50, default="unspecified")
+    dep_airport = models.ForeignKey('Airport', on_delete=models.CASCADE, related_name="dep_airport")
     # destination airport (e.g. New York JFK)
-    destination_airport = models.CharField(max_length=50, default="unspecified")
+    dest_airport = models.ForeignKey('Airport', on_delete=models.CASCADE, related_name="dest_airport")
     # departure date-time (e.g. 2018.04.01, 14:45:00)
-    departue_datetime = models.DateTimeField(default=timezone.now)
+    dep_datetime = models.DateTimeField(default=timezone.now)
     # arrival date-time (e.g. 2018.04.01, 20:30:00)
-    arrival_datetime = models.DateTimeField(default=timezone.now)
+    arr_datetime = models.DateTimeField(default=timezone.now)
     #  flight duration (e.g. 5:15:00, i.e. 5 hours and 15 minutes)
     duration = models.DurationField(default=0)
     # aircraft type used for this flight (a foreign key to aircraft table)
     aircraft_type = models.ForeignKey('Aircraft', null="True", on_delete=models.CASCADE)
     # price of a single seat on this Flight
-    ticket_price = models.FloatField(default=0)
+    price = models.FloatField(default=0)
 
     def __str__(self):
-        return ("%s" % (self.flight_number))
+        return ("%s" % (self.flight_num))
 
 
 
