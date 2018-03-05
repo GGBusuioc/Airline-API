@@ -6,6 +6,7 @@ from django.core import serializers
 from bson import json_util
 import datetime
 from datetime import timedelta
+from django.views.decorators.csrf import csrf_exempt
 
 
 # Create your views here.
@@ -21,15 +22,9 @@ def findflight(request, format=None):
     if request.method =="GET":
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
-        #dep_airport = body['dep_airport']
-        print(body['dep_airport'])
+
         dep_airport = Airport.objects.get(airport_name=body['dep_airport'])
-        #dest_airport = body['dest_airport']
         dest_airport = Airport.objects.get(airport_name=body['dest_airport'])
-        print(type(dest_airport))
-        # print(type(str(dest_airport)))
-        # string_dep_airport =
-        # string_dest_airport =
 
         dep_date = body['dep_date']
         num_passengers = body['num_passengers']
@@ -74,3 +69,8 @@ def findflight(request, format=None):
             return JsonResponse(json.dumps(flight_results, default=json_util.default), safe=False)
         else:
             return HttpResponse("Seems like nothing was found", status=503)
+
+@csrf_exempt
+def bookflight(request):
+    if request.method=="POST":
+        print("I have something")
