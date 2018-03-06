@@ -7,7 +7,7 @@ from bson import json_util
 import datetime
 from datetime import timedelta
 from django.views.decorators.csrf import csrf_exempt
-
+from copy import deepcopy
 
 def findflight(request, format=None):
     if request.method =="GET":
@@ -60,4 +60,32 @@ def findflight(request, format=None):
 @csrf_exempt
 def bookflight(request):
     if request.method=="POST":
-        print("I have something")
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+
+        #print(body[0])
+        final_list = []
+        for result in body:
+            first_name = result['first_name']
+            surname = result['surname']
+            email = result['email']
+            phone = result['phone']
+            Passenger.objects.create(first_name=first_name,surname =surname,email = email,phone = phone)
+            passenger_entry = Passenger.objects.get(first_name=first_name,surname = surname,email = email,phone = phone)
+
+            this_result = {}
+            this_result['first_name'] = passenger_entry.first_name
+            this_result['surname'] = passenger_entry.surname
+            this_result['email'] = passenger_entry.email
+            this_result['phone'] = passenger_entry.phone
+
+            final_list.append(this_result)
+            #print("This is the final list")
+            print(final_list)
+
+
+
+        if final_list:
+            return JsonResponse(json.dumps(final_list), safe=False)
+        else:
+            return HttpResponse("Something went wrong in the booking process", status=503)

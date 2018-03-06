@@ -12,9 +12,16 @@ while process_complete == False:
     print("1. Find a flight")
     action = 'findflight'
     print("Pick a DEPARTUE AIRPORT,  DESTINATION AIPORT, DATE (YYYY-MM-DD), NUMBER OF PASSENGERS, FLEXIBLE (Y or N only)")
-    user_input = input()
+    #user_input = input()
     try:
-        dep_airport, dest_airport, dep_date, num_passengers, is_flex = user_input.split(" ")
+        #dep_airport, dest_airport, dep_date, int(num_passengers), is_flex = user_input.split(" ")
+        dep_airport = "Leeds"
+        dest_airport = "Luton"
+        dep_date = "2018-03-01"
+        num_passengers = 2
+        is_flex = "Y"
+
+
     except ValueError:
         print("Please provide all the required parameters")
 
@@ -45,21 +52,34 @@ while process_complete == False:
     print("\n2. Book a flight\n")
 
     print("Pick a FLIGHT ID, FIRSTNAME, SURNAME, EMAIL, PHONE")
-    user_input = input()
 
-    try:
-        flight_id, first_name, surname, email, phone = user_input.split(" ")
-    except ValueError:
-        print("Please provide all the required parameters")
+    payload_list = []
 
+    while num_passengers > 0:
+        print("PLEASE INTRODUCE THE INFORMATION FOR THE %d PASSENGER" % (num_passengers))
+        user_input = input()
+        num_passengers = num_passengers - 1
+        # depending on the number of passengers
+        try:
+            flight_id, first_name, surname, email, phone = user_input.split(" ")
+        except ValueError:
+            print("Please provide all the required parameters")
 
-    url = 'http://localhost:8000/bookflight/'
-    payload = {
-        'flight_id': flight_id,
-        'first_name': first_name,
-        'surname': surname,
-        'email': email,
-        'phone': phone,
-    }
+        print("These are the params provided: %s %s %s %s %s" % (flight_id, first_name,  surname, email, phone))
 
-    r = requests.post(url, data=json.dumps(payload))
+        url = 'http://localhost:8000/bookflight/'
+        payload_elem = {
+            'flight_id': flight_id,
+            'first_name': first_name,
+            'surname': surname,
+            'email': email,
+            'phone': phone,
+        }
+
+        payload_list.append(payload_elem)
+    print("Sending the request")
+    print(payload_list)
+    r = requests.post(url, data=json.dumps(payload_list))
+
+    print("This is what I have received from the server\n")
+    print(r.json())

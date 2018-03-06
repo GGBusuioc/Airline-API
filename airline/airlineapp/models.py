@@ -42,8 +42,6 @@ class Flight(models.Model):
     def __str__(self):
         return ("%s" % (self.flight_num))
 
-
-
 class Booking(models.Model):
     # unique booking number (e.g. WXY12Z)
     booking_number = models.CharField(max_length=10, unique=True)
@@ -59,12 +57,19 @@ class Booking(models.Model):
     #  time this booking will no longer be valid if the status of the booking is ONHOLD.
     time_to_complete = models.TimeField(default="unspecified")
 
+    def __str__(self):
+        return ("%s" % (self.booking_number))
+
+
 class Passenger(models.Model):
     # details of each passenger  (first name, surname, email, and phone number).
-    firstname = models.CharField(max_length=50, default="unspecified")
+    first_name = models.CharField(max_length=50, default="unspecified")
     surname = models.CharField(max_length=50, default="unspecified")
     email = models.EmailField(max_length=50, default="unspecified@unspecified.com")
-    phone_number = models.CharField(max_length=15, default="unspecified")
+    phone = models.CharField(max_length=15, default="unspecified")
+
+    def __str__(self):
+        return ("%s %s" % (self.first_name, self.surname))
 
 class PaymentProvider(models.Model):
     # name of the payment service provider (e.g. SalPay)
