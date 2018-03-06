@@ -2,14 +2,13 @@ import requests
 import json
 from bson import json_util
 import datetime
-#from bson.codec_options import CodecOptions
+
 print("Welcome to the client!")
 
 process_complete = False
 
 while process_complete == False:
 
-    #print("=====================================")
     print("1. Find a flight")
     action = 'findflight'
     print("Pick a DEPARTUE AIRPORT,  DESTINATION AIPORT, DATE (YYYY-MM-DD), NUMBER OF PASSENGERS, FLEXIBLE (Y or N only)")
@@ -29,41 +28,21 @@ while process_complete == False:
         'is_flex': is_flex,
     }
 
-
-
     r = requests.get(url, data=json.dumps(payload))
 
-    print(r.json())
-    print(r.text)
     try:
-        flights = json.loads(r.text)
-        #, object_hook=json_util.object_hook)
+        flights = json.loads(r.json())
         print("*************************************")
         print("FLIGHT ID | FLIGHT NR | DEP AIR | DEST AIR | DEP D&T | ARI D&T | DURATION [H, M] | PRICE £")
         print("\n")
         for result in flights:
             print(str(result['id']) + " " + result['flight_num'] + " " + result['dep_airport'] + " " + result['dest_airport']+ " " + str(result['dep_datetime']) + " " + str(result['arr_datetime']) + " " + str(result['duration']) + " " + str(result['price']))
-
-            # + result['dep_datetime'] + " " + result['arr_datetime'] )
-
-            # for field in result:
-            #     if(type(field)!=datetime.datetime):
-            #         print("%s |" % (field), end=" ")
-            #     else:
-            #         print("%d/%d/%d H:%d M:%d |" % (field.year, field.month, field.day, field.hour, field.minute), end=" ")
-            # print("\n")
         print("*************************************")
-
-
-
 
     except ValueError:
         print("Nothing was found. A reason plus the payload. ")
 
-    print("\n")
-    print("2. Book a flight")
-    print("\n")
-
+    print("\n2. Book a flight\n")
 
     print("Pick a FLIGHT ID, FIRSTNAME, SURNAME, EMAIL, PHONE")
     user_input = input()

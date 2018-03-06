@@ -9,9 +9,6 @@ from datetime import timedelta
 from django.views.decorators.csrf import csrf_exempt
 
 
-# Create your views here.
-
-
 def findflight(request, format=None):
     if request.method =="GET":
         body_unicode = request.body.decode('utf-8')
@@ -26,8 +23,6 @@ def findflight(request, format=None):
 
 
         datetime_object = datetime.datetime.strptime(dep_date, '%Y-%m-%d')
-        #d_truncated = datetime.date(datetime_object.year, datetime_object.month, datetime_object.day)
-
         if is_flex == 'Y':
             all_entries = Flight.objects.filter(dep_airport=dep_airport,
                                                 dest_airport=dest_airport,
@@ -43,7 +38,6 @@ def findflight(request, format=None):
         for entry in all_entries:
             flight_result = {}
 
-
             flight_result['id'] = entry.pk
             flight_result['flight_num'] = entry.flight_num
             flight_result['dep_airport'] = str(dep_airport)
@@ -55,22 +49,11 @@ def findflight(request, format=None):
             flight_results.append(flight_result)
 
 
-            # flight_result.append(entry.id)
-            # flight_result.append(entry.flight_num)
-            # flight_result.append(str(dep_airport))
-            # flight_result.append(str(dest_airport))
-            # flight_result.append(entry.dep_datetime)
-            # flight_result.append(entry.arr_datetime)
-            # flight_result.append(duration)
-            # flight_result.append(entry.price)
-            # flight_results.append(flight_result)
-
         # How to serialize a queryset object
         #data = serializers.serialize('json', list(all_entries), fields=('flight_number'))
 
         if flight_results:
-            #return JsonResponse(json.dumps(flight_results, default=json_util.default), safe=True)
-            return HttpResponse(json.dumps(flight_results))
+            return JsonResponse(json.dumps(flight_results), safe=False)
         else:
             return HttpResponse("Seems like nothing was found", status=503)
 
