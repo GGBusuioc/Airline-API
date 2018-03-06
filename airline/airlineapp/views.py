@@ -11,6 +11,8 @@ from copy import deepcopy
 
 def findflight(request, format=None):
     if request.method =="GET":
+
+
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
 
@@ -38,7 +40,7 @@ def findflight(request, format=None):
         for entry in all_entries:
             flight_result = {}
 
-            flight_result['id'] = entry.pk
+            flight_result['flight_id'] = entry.pk
             flight_result['flight_num'] = entry.flight_num
             flight_result['dep_airport'] = str(dep_airport)
             flight_result['dest_airport'] = str(dest_airport)
@@ -49,11 +51,15 @@ def findflight(request, format=None):
             flight_results.append(flight_result)
 
 
+
+        findflight = {}
+        findflight['flights'] = flight_results
+        
         # How to serialize a queryset object
         #data = serializers.serialize('json', list(all_entries), fields=('flight_number'))
 
-        if flight_results:
-            return JsonResponse(json.dumps(flight_results), safe=False)
+        if findflight:
+            return JsonResponse(json.dumps(findflight), safe=False)
         else:
             return HttpResponse("Seems like nothing was found", status=503)
 

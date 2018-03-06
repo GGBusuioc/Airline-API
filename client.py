@@ -36,14 +36,17 @@ while process_complete == False:
     }
 
     r = requests.get(url, data=json.dumps(payload))
-
+    print(r.json())
     try:
         flights = json.loads(r.json())
+        #print(flights)
         print("*************************************")
         print("FLIGHT ID | FLIGHT NR | DEP AIR | DEST AIR | DEP D&T | ARI D&T | DURATION [H, M] | PRICE £")
         print("\n")
-        for result in flights:
-            print(str(result['id']) + " " + result['flight_num'] + " " + result['dep_airport'] + " " + result['dest_airport']+ " " + str(result['dep_datetime']) + " " + str(result['arr_datetime']) + " " + str(result['duration']) + " " + str(result['price']))
+
+
+        for result in flights["flights"]:
+            print(str(result['flight_id']) + " " + result['flight_num'] + " " + result['dep_airport'] + " " + result['dest_airport']+ " " + str(result['dep_datetime']) + " " + str(result['arr_datetime']) + " " + str(result['duration']) + " " + str(result['price']))
         print("*************************************")
 
     except ValueError:
@@ -59,7 +62,6 @@ while process_complete == False:
         print("PLEASE INTRODUCE THE INFORMATION FOR THE %d PASSENGER" % (num_passengers))
         user_input = input()
         num_passengers = num_passengers - 1
-        # depending on the number of passengers
         try:
             flight_id, first_name, surname, email, phone = user_input.split(" ")
         except ValueError:
