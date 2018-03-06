@@ -70,6 +70,7 @@ while process_complete == False:
         print("These are the params provided: %s %s %s %s %s" % (flight_id, first_name,  surname, email, phone))
 
         url = 'http://localhost:8000/bookflight/'
+
         payload_elem = {
             'flight_id': flight_id,
             'first_name': first_name,
@@ -78,10 +79,16 @@ while process_complete == False:
             'phone': phone,
         }
 
+
+
         payload_list.append(payload_elem)
-    print("Sending the request")
-    print(payload_list)
-    r = requests.post(url, data=json.dumps(payload_list))
+
+        passengers = {}
+        passengers['passengers'] = payload_list
+    #
+    # print("Sending the PASSENGERS request")
+    # print(passengers)
+    r = requests.post(url, data=json.dumps(passengers))
 
     print("This is what I have received from the server\n")
-    print(r.json())
+    

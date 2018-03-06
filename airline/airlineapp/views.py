@@ -54,7 +54,7 @@ def findflight(request, format=None):
 
         findflight = {}
         findflight['flights'] = flight_results
-        
+
         # How to serialize a queryset object
         #data = serializers.serialize('json', list(all_entries), fields=('flight_number'))
 
@@ -68,10 +68,10 @@ def bookflight(request):
     if request.method=="POST":
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
-
-        #print(body[0])
+        print("The PASSENGERS REQUEST")
+        print(body)
         final_list = []
-        for result in body:
+        for result in body["passengers"]:
             first_name = result['first_name']
             surname = result['surname']
             email = result['email']
@@ -86,12 +86,22 @@ def bookflight(request):
             this_result['phone'] = passenger_entry.phone
 
             final_list.append(this_result)
-            #print("This is the final list")
-            print(final_list)
+        print(final_list)
+
+        # create the payload data
+
+
 
 
 
         if final_list:
-            return JsonResponse(json.dumps(final_list), safe=False)
+            return HttpResponse("Created", status=204)
         else:
-            return HttpResponse("Something went wrong in the booking process", status=503)
+            return Http404("So  mething went wrong ")
+
+
+
+        # if final_list:
+        #     return JsonResponse(json.dumps(final_list), safe=False)
+        # else:
+        #     return HttpResponse("Something went wrong in the booking process", status=503)
