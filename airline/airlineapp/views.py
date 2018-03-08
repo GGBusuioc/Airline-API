@@ -7,7 +7,11 @@ from bson import json_util
 import datetime
 from datetime import timedelta
 from django.views.decorators.csrf import csrf_exempt
-from copy import deepcopy
+import random
+import string
+
+def random_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for x in range(size))
 
 def findflight(request, format=None):
     if request.method =="GET":
@@ -48,6 +52,7 @@ def findflight(request, format=None):
             flight_result['arr_datetime'] = str(entry.arr_datetime)
             flight_result['duration'] = str(entry.duration)
             flight_result['price'] = entry.price
+
             flight_results.append(flight_result)
 
 
@@ -68,37 +73,52 @@ def bookflight(request):
     if request.method=="POST":
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
-        print("The PASSENGERS REQUEST")
-        print(body)
+
         final_list = []
-        for result in body["passengers"]:
+
+        booking_num = random_generator()
+        flight_object = Flight.objects.get(id=body['flight_id'])
+
+        # should check if a booking can be made
+
+
+        Booking.objects.create(booking_number = booking_num,
+                                booking_flight = flight_object,
+                                booked_seats = len(body['passengers']),
+                                booking_status = "ON_HOLD",
+                                time_to_complete = 30,
+        )
+        print(type(booking_num))
+        print("The booking should have been created here")
+
+
+
+        booking_object = Booking.objects.get(booking_number=booking_num)
+        print(booking_object)
+        for result in body['passengers']:
             first_name = result['first_name']
             surname = result['surname']
             email = result['email']
             phone = result['phone']
-            Passenger.objects.create(first_name=first_name,surname =surname,email = email,phone = phone)
-            passenger_entry = Passenger.objects.get(first_name=first_name,surname = surname,email = email,phone = phone)
+            Passenger.objects.create(booking_number=booking_object,first_name=first_name,surname =surname,email = email,phone = phone)
 
-            this_result = {}
-            this_result['first_name'] = passenger_entry.first_name
-            this_result['surname'] = passenger_entry.surname
-            this_result['email'] = passenger_entry.email
-            this_result['phone'] = passenger_entry.phone
-
-            final_list.append(this_result)
-        print(final_list)
-
-        # create the payload data
+        print("DING DING!!!!!!!!!!!!!")
 
 
+        payload = {}
+        payload['booking_num'] = booking_num
+        payload['booking_status'] = "ON_HOLD"
+        payload['tot_price'] = booking_object.booked_seats * flight_object.price
+        print("payload before sending")
+        print(json.dumps(payload))
 
-
-
-        if final_list:
-            return HttpResponse("Created", status=204)
+        if payload:
+            return HttpResponse(json.dumps(payload), status=204)
         else:
             return Http404("So  mething went wrong ")
 
+def paymentmethods(request):
+    print("3")
 
 
         # if final_list:

@@ -48,14 +48,14 @@ class Booking(models.Model):
     # flight associated with this booking (a foreign key to the flights table)
     booking_flight = models.ForeignKey('Flight', on_delete=models.CASCADE)
     # number of seats booked.
-    booking_seats_number = models.IntegerField(default="unspecified")
+    booked_seats = models.IntegerField(default="unspecified")
     # passengers
-    passenger = models.ForeignKey('Passenger', on_delete=models.CASCADE)
+    #passenger = models.ForeignKey('Passenger', on_delete=models.CASCADE)
     # status of this booking (ONHOLD, CONFIRMED, CANCELLED, or TRAVELLED)
-    STATUS_CHOICES = (('ONHOLD', 'ONHOLD'), ('CONFIRMED','CONFIRMED'), ('CANCELLED', 'CANCELLED'), ('TRAVELLED','TRAVELLED'))
-    status = models.CharField(max_length=10,choices=STATUS_CHOICES, default='ONHOLD')
+    #STATUS_CHOICES = (('ONHOLD', 'ONHOLD'), ('CONFIRMED','CONFIRMED'), ('CANCELLED', 'CANCELLED'), ('TRAVELLED','TRAVELLED'))
+    booking_status = models.CharField(max_length=10, default='ON_HOLD')
     #  time this booking will no longer be valid if the status of the booking is ONHOLD.
-    time_to_complete = models.TimeField(default="unspecified")
+    time_to_complete = models.IntegerField(null=True)
 
     def __str__(self):
         return ("%s" % (self.booking_number))
@@ -63,6 +63,7 @@ class Booking(models.Model):
 
 class Passenger(models.Model):
     # details of each passenger  (first name, surname, email, and phone number).
+    booking_number = models.ForeignKey('Booking', on_delete=models.CASCADE)
     first_name = models.CharField(max_length=50, default="unspecified")
     surname = models.CharField(max_length=50, default="unspecified")
     email = models.EmailField(max_length=50, default="unspecified@unspecified.com")

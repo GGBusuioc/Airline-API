@@ -58,21 +58,24 @@ while process_complete == False:
 
     payload_list = []
 
+    print("PLEASE INTRODUCE THE FLIGHT_ID")
+    flight_id = input()
+
     while num_passengers > 0:
         print("PLEASE INTRODUCE THE INFORMATION FOR THE %d PASSENGER" % (num_passengers))
-        user_input = input()
         num_passengers = num_passengers - 1
+        user_input = input()
         try:
-            flight_id, first_name, surname, email, phone = user_input.split(" ")
+            first_name, surname, email, phone = user_input.split(" ")
+            print(first_name)
         except ValueError:
             print("Please provide all the required parameters")
 
-        print("These are the params provided: %s %s %s %s %s" % (flight_id, first_name,  surname, email, phone))
+        print("These are the params provided: %s %s %s %s" % (first_name,  surname, email, phone))
 
         url = 'http://localhost:8000/bookflight/'
 
         payload_elem = {
-            'flight_id': flight_id,
             'first_name': first_name,
             'surname': surname,
             'email': email,
@@ -84,11 +87,11 @@ while process_complete == False:
         payload_list.append(payload_elem)
 
         passengers = {}
+        passengers['flight_id'] = flight_id
         passengers['passengers'] = payload_list
     #
-    # print("Sending the PASSENGERS request")
-    # print(passengers)
+    print("Sending the PASSENGERS request")
+    print(json.dumps(passengers))
     r = requests.post(url, data=json.dumps(passengers))
 
     print("This is what I have received from the server\n")
-    
