@@ -1,15 +1,5 @@
 {
-	"passengers": [{
-		"first_name": "i",
-		"flight_id": "1",
-		"email": "i",
-		"surname": "i",
-		"phone": "i"
-	}, {
-		"first_name": "o",
-		"flight_id": "2",
-		"email": "o",
-		"surname": "o",
-		"phone": "o"
-	}]
+	"booking_num": "4J8PJ4",
+	"booking_status": "ON_HOLD",
+	"tot_price": 40.0
 }

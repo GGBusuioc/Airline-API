@@ -9,6 +9,7 @@ from datetime import timedelta
 from django.views.decorators.csrf import csrf_exempt
 import random
 import string
+from django.db.models import Sum
 
 def random_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for x in range(size))
@@ -79,49 +80,72 @@ def bookflight(request):
         booking_num = random_generator()
         flight_object = Flight.objects.get(id=body['flight_id'])
 
+        aircraft_type = flight_object.aircraft_type
+        aircraft_object = Aircraft.objects.get(aircraft_type=aircraft_type)
+        num_of_passengers_allowed = aircraft_object.aircraft_number_seats
+        thesum = Booking.objects.filter(booking_flight=flight_object).aggregate(Sum('booked_seats'))
+
+        # find the bookings already made
+
+
         # should check if a booking can be made
+        if(thesum['booked_seats__sum'] is None):
+            seats_booked = 0
+        else:
+            seats_booked = thesum['booked_seats__sum']
 
 
-        Booking.objects.create(booking_number = booking_num,
-                                booking_flight = flight_object,
-                                booked_seats = len(body['passengers']),
-                                booking_status = "ON_HOLD",
-                                time_to_complete = 30,
-        )
-        print(type(booking_num))
-        print("The booking should have been created here")
+        if(seats_booked+len(body['passengers']) <= num_of_passengers_allowed):
+
+            Booking.objects.create(booking_number = booking_num,
+                                    booking_flight = flight_object,
+                                    booked_seats = len(body['passengers']),
+                                    booking_status = "ON_HOLD",
+                                    time_to_complete = 30,
+            )
 
 
 
-        booking_object = Booking.objects.get(booking_number=booking_num)
-        print(booking_object)
-        for result in body['passengers']:
-            first_name = result['first_name']
-            surname = result['surname']
-            email = result['email']
-            phone = result['phone']
-            Passenger.objects.create(booking_number=booking_object,first_name=first_name,surname =surname,email = email,phone = phone)
 
-        print("DING DING!!!!!!!!!!!!!")
+            booking_object = Booking.objects.get(booking_number=booking_num)
+            for result in body['passengers']:
+                first_name = result['first_name']
+                surname = result['surname']
+                email = result['email']
+                phone = result['phone']
+                Passenger.objects.create(booking_number=booking_object,first_name=first_name,surname =surname,email = email,phone = phone)
 
 
-        payload = {}
-        payload['booking_num'] = booking_num
-        payload['booking_status'] = "ON_HOLD"
-        payload['tot_price'] = booking_object.booked_seats * flight_object.price
-        print("payload before sending")
-        print(json.dumps(payload))
+            payload = {}
+            payload['booking_num'] = booking_num
+            payload['booking_status'] = "ON_HOLD"
+            payload['tot_price'] = booking_object.booked_seats * flight_object.price
+            print("payload before sending")
+            print(json.dumps(payload))
+        else:
+            return HttpResponse("WE ARE FULL BOOKED SORRY!")
 
         if payload:
-            return HttpResponse(json.dumps(payload), status=204)
+            return HttpResponse("YOU ARE LUCKY. WE ARE NOT FULL BOOKED YET",json.dumps(payload), status=204)
         else:
             return Http404("So  mething went wrong ")
 
 def paymentmethods(request):
-    print("3")
+
+    providers_list = []
+
+    payment_objects = PaymentProvider.objects.all()
+
+    for entry in payment_objects:
+        payment_result = {}
+        payment_result['pay_provider_id'] = entry.id
+        payment_result['pay_provider_name'] = entry.name
+        providers_list.append(payment_result)
 
 
-        # if final_list:
-        #     return JsonResponse(json.dumps(final_list), safe=False)
-        # else:
-        #     return HttpResponse("Something went wrong in the booking process", status=503)
+
+    payload = {}
+    payload['pay_providers'] = providers_list
+
+
+    return HttpResponse(json.dumps(payload))

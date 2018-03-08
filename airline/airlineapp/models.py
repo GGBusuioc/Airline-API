@@ -84,6 +84,10 @@ class PaymentProvider(models.Model):
     login_name = models.CharField(max_length=50, default="unspecified")
     password = models.CharField(max_length=50, null=False)
 
+    def __str__(self):
+        return ("%s" % (self.name))
+
+
 class Invoice(models.Model):
     #  unique reference number for this invoice at the airline’s database
     reference_number = models.CharField(max_length=10, unique=True)
