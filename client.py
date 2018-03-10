@@ -10,16 +10,16 @@ process_complete = False
 while process_complete == False:
 
     print("1. Find a flight")
-    action = 'findflight'
     print("Pick a DEPARTUE AIRPORT,  DESTINATION AIPORT, DATE (YYYY-MM-DD), NUMBER OF PASSENGERS, FLEXIBLE (Y or N only)")
-    #user_input = input()
+    user_input = input()
     try:
-        #dep_airport, dest_airport, dep_date, int(num_passengers), is_flex = user_input.split(" ")
-        dep_airport = "Leeds"
-        dest_airport = "Luton"
-        dep_date = "2018-03-01"
-        num_passengers = 2
-        is_flex = "Y"
+        dep_airport, dest_airport, dep_date, num_passengers, is_flex = user_input.split(" ")
+
+        # dep_airport = "Leeds"
+        # dest_airport = "Luton"
+        # dep_date = "2018-03-01"
+        # num_passengers = 2
+        # is_flex = "Y"
 
 
     except ValueError:
@@ -36,7 +36,6 @@ while process_complete == False:
     }
 
     r = requests.get(url, data=json.dumps(payload))
-    print(r.json())
     try:
         flights = json.loads(r.json())
         #print(flights)
@@ -50,7 +49,7 @@ while process_complete == False:
         print("*************************************")
 
     except ValueError:
-        print("Nothing was found. A reason plus the payload. ")
+        print(r.text)
 
     # print("\n2. Book a flight\n")
     #
@@ -93,8 +92,8 @@ while process_complete == False:
     # print("Sending the PASSENGERS request")
     # print(json.dumps(passengers))
     # r = requests.post(url, data=json.dumps(passengers))
-
-
+    #
+    #
 
     print("3. Request PAYMENT METHODS")
 

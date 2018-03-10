@@ -16,30 +16,51 @@ def random_generator(size=6, chars=string.ascii_uppercase + string.digits):
 
 def findflight(request, format=None):
     if request.method =="GET":
-
-
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
 
-        dep_airport = Airport.objects.get(airport_name=body['dep_airport'])
-        dest_airport = Airport.objects.get(airport_name=body['dest_airport'])
+        # test if the departue airport appears in the database
+        try:
+            dep_airport = Airport.objects.get(airport_name=body['dep_airport'])
+        except:
+            return HttpResponse("Sorry. The DEPARTUE AIPORT %s is not stored in our airports database" % (body['dep_airport']), status=503)
+        # test if the destination airport appears in the database
+        try:
+            dest_airport = Airport.objects.get(airport_name=body['dest_airport'])
+        except:
+            return HttpResponse("Sorry. The DESTINATION AIRPORT %s is not stored in our airports database" % (body['dest_airport']), status=503)
+
+
+        #return HttpResponse("One of the airports is not found", status=503)
 
         dep_date = body['dep_date']
         num_passengers = body['num_passengers']
         is_flex = body['is_flex']
 
+        try:
+            datetime_object = datetime.datetime.strptime(dep_date, '%Y-%m-%d')
+        except:
+            return HttpResponse("Sorry. %s does no comply to our format standards." % (body['dep_date']), status=503)
 
-        datetime_object = datetime.datetime.strptime(dep_date, '%Y-%m-%d')
-        if is_flex == 'Y':
-            all_entries = Flight.objects.filter(dep_airport=dep_airport,
-                                                dest_airport=dest_airport,
-                                                dep_datetime__range=[datetime_object + datetime.timedelta(days=-3), datetime_object + datetime.timedelta(days=3)]
-                                                )
-        elif is_flex == 'N':
+
+        try:
+            if is_flex == 'Y':
                 all_entries = Flight.objects.filter(dep_airport=dep_airport,
                                                     dest_airport=dest_airport,
-                                                    dep_datetime__day=datetime_object.day,
+                                                    dep_datetime__range=[datetime_object + datetime.timedelta(days=-3), datetime_object + datetime.timedelta(days=3)]
                                                     )
+            elif is_flex == 'N':
+                    all_entries = Flight.objects.filter(dep_airport=dep_airport,
+                                                        dest_airport=dest_airport,
+                                                        dep_datetime__day=datetime_object.day,
+                                                        )
+            else:
+                all_entries = []
+                return HttpResponse("Sorry. %s is not one of the two possible options for FLEXIBILITY" % (body['is_flex']), status=503)
+
+        except:
+            return
+
         flight_results = []
 
         for entry in all_entries:
@@ -56,18 +77,14 @@ def findflight(request, format=None):
 
             flight_results.append(flight_result)
 
-
-
         findflight = {}
         findflight['flights'] = flight_results
 
-        # How to serialize a queryset object
-        #data = serializers.serialize('json', list(all_entries), fields=('flight_number'))
 
         if findflight:
             return JsonResponse(json.dumps(findflight), safe=False)
         else:
-            return HttpResponse("Seems like nothing was found", status=503)
+            return HttpResponse("Service Unavailable", status=503)
 
 @csrf_exempt
 def bookflight(request):
@@ -131,21 +148,20 @@ def bookflight(request):
             return Http404("So  mething went wrong ")
 
 def paymentmethods(request):
+    if request.method == "GET":
+        providers_list = []
 
-    providers_list = []
+        payment_objects = PaymentProvider.objects.all()
 
-    payment_objects = PaymentProvider.objects.all()
+        for entry in payment_objects:
+            payment_result = {}
+            payment_result['pay_provider_id'] = entry.id
+            payment_result['pay_provider_name'] = entry.name
+            providers_list.append(payment_result)
 
-    for entry in payment_objects:
-        payment_result = {}
-        payment_result['pay_provider_id'] = entry.id
-        payment_result['pay_provider_name'] = entry.name
-        providers_list.append(payment_result)
-
-
-
-    payload = {}
-    payload['pay_providers'] = providers_list
-
-
-    return HttpResponse(json.dumps(payload))
+        payload = {}
+        payload['pay_providers'] = providers_list
+        if payload:
+            return HttpResponse(json.dumps(payload))
+        else:
+            return HttpResponse("Service Unavailable", status=503)
