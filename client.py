@@ -101,43 +101,87 @@ while process_complete == False:
 
 ########################### PART 3 ################################
 
-    print("3. Request PAYMENT METHODS")
-
-    url = 'http://localhost:8000/paymentmethods/'
-
-    b = requests.get(url)
-    pay_providers = json.loads(b.text)
-    print("PAYMENT PROVIDER ID | PAYMENT PROVIDER NAME")
-
-    for result in pay_providers["pay_providers"]:
-        print(str(result['pay_provider_id']) + " " + result['pay_provider_name'])
-
+    # print("3. Request PAYMENT METHODS")
+    #
+    # url = 'http://localhost:8000/paymentmethods/'
+    #
+    # b = requests.get(url)
+    # pay_providers = json.loads(b.text)
+    # print("PAYMENT PROVIDER ID | PAYMENT PROVIDER NAME")
+    #
+    # for result in pay_providers["pay_providers"]:
+    #     print(str(result['pay_provider_id']) + " " + result['pay_provider_name'])
+    #
 
 
 
 ########################### PART 4 ################################
 
-    print("4. PAY FOR BOOKING")
-    print("Please insert your BOOKING NUMBER and your PAYMENT PROVIDER ID")
+    # print("4. PAY FOR BOOKING")
+    # print("Please insert your BOOKING NUMBER and your PAYMENT PROVIDER ID")
+    # user_input = input()
+    # try:
+    #     booking_num, pay_provider_id = user_input.split(" ")
+    # except ValueError:
+    #     print("Please provide all the required parameters")
+    #
+    # booking_payload = {}
+    # booking_payload['booking_num'] = booking_num
+    # booking_payload['pay_provider_id'] = pay_provider_id
+    #
+    #
+    # url = 'http://localhost:8000/payforbooking/'
+    # b = requests.post(url, data=json.dumps(booking_payload))
+    #
+    # try:
+    #     response = json.loads(b.text)
+    #     print(" INVOICE ID | URL | PAY PROVIDER ID | BOOKING NUM")
+    #     print(str(response["invoice_id"]) + " " + str(response["pay_provider_id"]) + " " + response["url"] + " " + response["booking_num"] )
+    # except ValueError:
+    #     print(b.text)
+
+########################### PART 5 ################################
+
+
+########################### PART 6 ################################
+    print("BOOKING STATUS Part 6")
+    print("Please insert your BOOKING NUMBER")
     user_input = input()
     try:
-        booking_num, pay_provider_id = user_input.split(" ")
-    except ValueError:
+        booking_num = user_input
+    except:
         print("Please provide all the required parameters")
-
-    booking_payload = {}
-    booking_payload['booking_num'] = booking_num
-    booking_payload['pay_provider_id'] = pay_provider_id
-
-
-    url = 'http://localhost:8000/payforbooking/'
-    b = requests.post(url, data=json.dumps(booking_payload))
+    status_payload = {}
+    status_payload["booking_num"] = booking_num
+    url = 'http://localhost:8000/bookingstatus/'
+    r = requests.get(url, data=json.dumps(status_payload))
 
     try:
-        response = json.loads(b.text)
-        print(" INVOICE ID | URL | PAY PROVIDER ID | BOOKING NUM")
-        print(str(response["invoice_id"]) + " " + str(response["pay_provider_id"]) + " " + response["url"] + " " + response["booking_num"] )
+        response = json.loads(r.text)
+        print("BOOKING NUM | BOOKING STATUS | FLIGHT NUM | DEP AIRPORT | DEST AIRPORT | DEP DATETIME | ARR DATETIME | DURATION")
+        print(response["booking_num"] + " " +response["booking_status"] + " " +response["flight_num"] + " " +response["dep_airport"] + " " +response["dest_airport"] + " " +response["dep_datetime"] + " " +response["arr_datetime"] + " " +response["duration"] )
     except ValueError:
-        print(b.text)
+        print(r.text)
+
+########################### PART 7 ################################
+    print("CANCEL BOOKING Part 7")
+    print("Please insert your BOOKING NUMBER")
+    user_input = input()
+    try:
+        booking_num = user_input
+    except:
+        print("Please provide all the required parameters")
+    cancel_payload = {}
+    cancel_payload["booking_num"] = booking_num
+    url = 'http://localhost:8000/cancelbooking/'
+    r = requests.post(url, data=json.dumps(cancel_payload))
+
+    try:
+        response = json.loads(r.text)
+        print("BOOKING NUMBER | BOOKING STATUS")
+        print(response["booking_num"] + " " + response["booking_status"])
+    except ValueError:
+        print(r.text)
+
 
     process_complete = True

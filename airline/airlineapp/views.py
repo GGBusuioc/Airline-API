@@ -202,7 +202,43 @@ def finalizebooking(request):
     return ("WORK IN PROGRESS")
 
 def bookingstatus(request):
-    return ("WORK IN PROGRESS")
+    if request.method=="GET":
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+
+        try:
+            booking_object = Booking.objects.get(booking_number=body["booking_num"])
+        except:
+            return HttpResponse("Sorry. There is no BOOKING for the following BOOKING NUMBER: %s" % (body['booking_num']), status=503)
+
+
+        flight_object = Flight.objects.get(flight_num=booking_object.booking_flight)
+        
+
+
+        payload = {}
+        payload["booking_num"] = body["booking_num"]
+        payload["booking_status"] = booking_object.booking_status
+        payload["flight_num"] = flight_object.flight_num
+        payload["dep_airport"] = str(flight_object.dep_airport)
+        payload["dest_airport"] = str(flight_object.dest_airport)
+        payload["dep_datetime"] = str(flight_object.dep_datetime)
+        payload["arr_datetime"] = str(flight_object.arr_datetime)
+        payload["duration"] = str(flight_object.duration)
+        if payload:
+            return HttpResponse(json.dumps(payload))
+        else:
+            return HttpResponse("Service Unavailable", status=503)
+
+
 
 def cancelbooking(request):
-    return ("WORK IN PROGRESS")
+    if request.method=="POST":
+
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+
+        try:
+            booking_object = Booking.objects.get(booking_number=body["booking_num"])
+        except:
+            return HttpResponse("Sorry. There is no BOOKING for the following BOOKING NUMBER: %s" % (body['booking_num']), status=503)
