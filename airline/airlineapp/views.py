@@ -88,7 +88,7 @@ def findflight(request, format=None):
 
 @csrf_exempt
 def bookflight(request):
-    if request.method=="POST":
+    if request.method=="POST" or "GET":
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
 
@@ -111,7 +111,6 @@ def bookflight(request):
         else:
             seats_booked = thesum['booked_seats__sum']
 
-
         if(seats_booked+len(body['passengers']) <= num_of_passengers_allowed):
 
             Booking.objects.create(booking_number = booking_num,
@@ -120,10 +119,6 @@ def bookflight(request):
                                     booking_status = "ON_HOLD",
                                     time_to_complete = 30,
             )
-
-
-
-
             booking_object = Booking.objects.get(booking_number=booking_num)
             for result in body['passengers']:
                 first_name = result['first_name']
@@ -137,13 +132,13 @@ def bookflight(request):
             payload['booking_num'] = booking_num
             payload['booking_status'] = "ON_HOLD"
             payload['tot_price'] = booking_object.booked_seats * flight_object.price
-            print("payload before sending")
-            print(json.dumps(payload))
+
         else:
             return HttpResponse("WE ARE FULL BOOKED SORRY!")
 
+
         if payload:
-            return HttpResponse("YOU ARE LUCKY. WE ARE NOT FULL BOOKED YET",json.dumps(payload), status=204)
+            return HttpResponse(json.dumps(payload), status=201)
         else:
             return Http404("So  mething went wrong ")
 
@@ -165,3 +160,21 @@ def paymentmethods(request):
             return HttpResponse(json.dumps(payload))
         else:
             return HttpResponse("Service Unavailable", status=503)
+
+def payforbooking(request):
+    if request.method == "POST":
+
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+
+        print(body)
+
+
+def finalizebooking(request):
+    return ("WORK IN PROGRESS")
+
+def bookingstatus(request):
+    return ("WORK IN PROGRESS")
+
+def cancelbooking(request):
+    return ("WORK IN PROGRESS")
