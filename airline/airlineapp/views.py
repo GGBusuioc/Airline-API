@@ -168,12 +168,26 @@ def payforbooking(request):
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
 
-        print(body)
+        #print(body)
         payment_object = PaymentProvider.objects.get(id=body["pay_provider_id"])
-        print(payment_object)
+        #print(payment_object)
+        try:
+            print("a booking object")
+            booking_object = Booking.objects.get(booking_number=body["booking_num"])
+
+        except:
+            return HttpResponse("Sorry. The BOOKING NUMBER %s is not not storred in our database." % (body['booking_num']), status=503)
+
+        try:
+            invoice = Invoice.objects.get(booking_number=booking_object)
+        except:
+            return HttpResponse("Sorry. There is no INVOICE ID for %s" % (body['booking_num']), status=503)
+
+
+
         payload = {}
         payload["pay_provider_id"] = body["pay_provider_id"]
-        payload["invoice_id"] = 0
+        payload["invoice_id"] = invoice.reference_number
         payload["booking_num"] = body["booking_num"]
 
         payload["url"] = payment_object.website

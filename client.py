@@ -132,8 +132,12 @@ while process_complete == False:
 
     url = 'http://localhost:8000/payforbooking/'
     b = requests.post(url, data=json.dumps(booking_payload))
-    print(" INVOICE ID | URL | PAY PROVIDER ID | BOOKING NUM")
-    print(json.loads(b.text))
 
+    try:
+        response = json.loads(b.text)
+        print(" INVOICE ID | URL | PAY PROVIDER ID | BOOKING NUM")
+        print(str(response["invoice_id"]) + " " + str(response["pay_provider_id"]) + " " + response["url"] + " " + response["booking_num"] )
+    except ValueError:
+        print(b.text)
 
     process_complete = True
