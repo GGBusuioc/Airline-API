@@ -9,6 +9,9 @@ process_complete = False
 
 while process_complete == False:
 
+
+
+########################### PART 1 ################################
     print("1. Find a flight")
     print("Pick a DEPARTUE AIRPORT,  DESTINATION AIPORT, DATE (YYYY-MM-DD), NUMBER OF PASSENGERS, FLEXIBLE (Y or N only)")
     #user_input = input()
@@ -51,51 +54,52 @@ while process_complete == False:
     except ValueError:
         print(r.text)
 
-    print("\n2. Book a flight\n")
-
-    print("Pick a FLIGHT ID, FIRSTNAME, SURNAME, EMAIL, PHONE")
-
-    payload_list = []
-
-    print("PLEASE INTRODUCE THE FLIGHT_ID")
-    flight_id = input()
-
-    while num_passengers > 0:
-        print("PLEASE INTRODUCE THE INFORMATION FOR THE %d PASSENGER" % (num_passengers))
-        num_passengers = num_passengers - 1
-        user_input = input()
-        try:
-            first_name, surname, email, phone = user_input.split(" ")
-            print(first_name)
-        except ValueError:
-            print("Please provide all the required parameters")
-
-        print("These are the params provided: %s %s %s %s" % (first_name,  surname, email, phone))
-
-        url = 'http://localhost:8000/bookflight/'
-
-        payload_elem = {
-            'first_name': first_name,
-            'surname': surname,
-            'email': email,
-            'phone': phone,
-        }
-
-
-
-        payload_list.append(payload_elem)
-
-        passengers = {}
-        passengers['flight_id'] = flight_id
-        passengers['passengers'] = payload_list
+########################### PART 2 ################################
+    # print("\n2. Book a flight\n")
     #
-
-    r = requests.post(url, data=json.dumps(passengers))
-    response = json.loads(r.text)
-    print("BOOKING NUMBER | BOOKING STATUS | TOTAL PRICE")
-    print(response["booking_num"] + " " +response["booking_status"] + " " +str(response["tot_price"]))
-
+    # print("Pick a FLIGHT ID, FIRSTNAME, SURNAME, EMAIL, PHONE")
     #
+    # payload_list = []
+    #
+    # print("PLEASE INTRODUCE THE FLIGHT_ID")
+    # flight_id = input()
+    #
+    # while num_passengers > 0:
+    #     print("PLEASE INTRODUCE THE INFORMATION FOR THE %d PASSENGER" % (num_passengers))
+    #     num_passengers = num_passengers - 1
+    #     user_input = input()
+    #     try:
+    #         first_name, surname, email, phone = user_input.split(" ")
+    #         print(first_name)
+    #     except ValueError:
+    #         print("Please provide all the required parameters")
+    #
+    #     print("These are the params provided: %s %s %s %s" % (first_name,  surname, email, phone))
+    #
+    #     url = 'http://localhost:8000/bookflight/'
+    #
+    #     payload_elem = {
+    #         'first_name': first_name,
+    #         'surname': surname,
+    #         'email': email,
+    #         'phone': phone,
+    #     }
+    #
+    #
+    #
+    #     payload_list.append(payload_elem)
+    #
+    #     passengers = {}
+    #     passengers['flight_id'] = flight_id
+    #     passengers['passengers'] = payload_list
+    # #
+    #
+    # r = requests.post(url, data=json.dumps(passengers))
+    # response = json.loads(r.text)
+    # print("BOOKING NUMBER | BOOKING STATUS | TOTAL PRICE")
+    # print(response["booking_num"] + " " +response["booking_status"] + " " +str(response["tot_price"]))
+
+########################### PART 3 ################################
 
     print("3. Request PAYMENT METHODS")
 
@@ -108,6 +112,10 @@ while process_complete == False:
     for result in pay_providers["pay_providers"]:
         print(str(result['pay_provider_id']) + " " + result['pay_provider_name'])
 
+
+
+
+########################### PART 4 ################################
 
     print("4. PAY FOR BOOKING")
     print("Please insert your BOOKING NUMBER and your PAYMENT PROVIDER ID")
@@ -123,8 +131,9 @@ while process_complete == False:
 
 
     url = 'http://localhost:8000/payforbooking/'
-    b = request.post(url, data=json.dumps(booking_payload))
-
+    b = requests.post(url, data=json.dumps(booking_payload))
+    print(" INVOICE ID | URL | PAY PROVIDER ID | BOOKING NUM")
+    print(json.loads(b.text))
 
 
     process_complete = True

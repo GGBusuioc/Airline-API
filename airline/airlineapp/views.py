@@ -161,6 +161,7 @@ def paymentmethods(request):
         else:
             return HttpResponse("Service Unavailable", status=503)
 
+@csrf_exempt
 def payforbooking(request):
     if request.method == "POST":
 
@@ -168,7 +169,20 @@ def payforbooking(request):
         body = json.loads(body_unicode)
 
         print(body)
+        payment_object = PaymentProvider.objects.get(id=body["pay_provider_id"])
+        print(payment_object)
+        payload = {}
+        payload["pay_provider_id"] = body["pay_provider_id"]
+        payload["invoice_id"] = 0
+        payload["booking_num"] = body["booking_num"]
 
+        payload["url"] = payment_object.website
+
+
+        if payload:
+            return HttpResponse(json.dumps(payload), status=201)
+        else:
+            return HttpResponse("Service Unavailable", status=503)
 
 def finalizebooking(request):
     return ("WORK IN PROGRESS")

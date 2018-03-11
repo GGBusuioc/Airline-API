@@ -10,7 +10,7 @@ urlpatterns = [
     path('paymentmethods/', views.paymentmethods),
     path('payforbooking/', views.payforbooking),
 
-    path('finalizebooking/',views.finalizebooking),
-    path('bookingstatus/',view.bookingstatus),
-    path('cancelbooking/',view.cancelbooking),
+    path('finalizebooking/', views.finalizebooking),
+    path('bookingstatus/', views.bookingstatus),
+    path('cancelbooking/', views.cancelbooking),
 ]
