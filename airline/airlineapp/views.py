@@ -213,7 +213,7 @@ def bookingstatus(request):
 
 
         flight_object = Flight.objects.get(flight_num=booking_object.booking_flight)
-        
+
 
 
         payload = {}
@@ -231,7 +231,7 @@ def bookingstatus(request):
             return HttpResponse("Service Unavailable", status=503)
 
 
-
+@csrf_exempt
 def cancelbooking(request):
     if request.method=="POST":
 
@@ -242,3 +242,16 @@ def cancelbooking(request):
             booking_object = Booking.objects.get(booking_number=body["booking_num"])
         except:
             return HttpResponse("Sorry. There is no BOOKING for the following BOOKING NUMBER: %s" % (body['booking_num']), status=503)
+
+        print("Before changing the cancel booking")
+        booking_object.booking_status = "CANCELLED"
+        booking_object.save()
+
+        payload = {}
+        payload["booking_num"] = body["booking_num"]
+        payload["booking_status"] = "CANCELLED"
+
+        if payload:
+            return HttpResponse(json.dumps(payload), status=201)
+        else:
+            return HttpResponse("Service Unavailable", status=503)

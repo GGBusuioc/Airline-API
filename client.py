@@ -144,26 +144,28 @@ while process_complete == False:
 
 
 ########################### PART 6 ################################
-    print("BOOKING STATUS Part 6")
-    print("Please insert your BOOKING NUMBER")
-    user_input = input()
-    try:
-        booking_num = user_input
-    except:
-        print("Please provide all the required parameters")
-    status_payload = {}
-    status_payload["booking_num"] = booking_num
-    url = 'http://localhost:8000/bookingstatus/'
-    r = requests.get(url, data=json.dumps(status_payload))
 
-    try:
-        response = json.loads(r.text)
-        print("BOOKING NUM | BOOKING STATUS | FLIGHT NUM | DEP AIRPORT | DEST AIRPORT | DEP DATETIME | ARR DATETIME | DURATION")
-        print(response["booking_num"] + " " +response["booking_status"] + " " +response["flight_num"] + " " +response["dep_airport"] + " " +response["dest_airport"] + " " +response["dep_datetime"] + " " +response["arr_datetime"] + " " +response["duration"] )
-    except ValueError:
-        print(r.text)
+    # print("BOOKING STATUS Part 6")
+    # print("Please insert your BOOKING NUMBER")
+    # user_input = input()
+    # try:
+    #     booking_num = user_input
+    # except:
+    #     print("Please provide all the required parameters")
+    # status_payload = {}
+    # status_payload["booking_num"] = booking_num
+    # url = 'http://localhost:8000/bookingstatus/'
+    # r = requests.get(url, data=json.dumps(status_payload))
+    #
+    # try:
+    #     response = json.loads(r.text)
+    #     print("BOOKING NUM | BOOKING STATUS | FLIGHT NUM | DEP AIRPORT | DEST AIRPORT | DEP DATETIME | ARR DATETIME | DURATION")
+    #     print(response["booking_num"] + " " +response["booking_status"] + " " +response["flight_num"] + " " +response["dep_airport"] + " " +response["dest_airport"] + " " +response["dep_datetime"] + " " +response["arr_datetime"] + " " +response["duration"] )
+    # except ValueError:
+    #     print(r.text)
 
 ########################### PART 7 ################################
+
     print("CANCEL BOOKING Part 7")
     print("Please insert your BOOKING NUMBER")
     user_input = input()
