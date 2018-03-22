@@ -96,9 +96,9 @@ while process_complete == False:
 
     r = requests.post(url, data=json.dumps(passengers))
     # try statement needed
-    response = json.loads(r.text)
+    response_r = json.loads(r.text)
     print("BOOKING NUMBER | BOOKING STATUS | TOTAL PRICE")
-    print(response["booking_num"] + " " +response["booking_status"] + " " +str(response["tot_price"]))
+    print(response_r["booking_num"] + " " +response_r["booking_status"] + " " +str(response_r["tot_price"]))
 
 ########################### PART 3 ################################
 
@@ -119,7 +119,7 @@ while process_complete == False:
 ########################### PART 4 ################################
 
     print("4. PAY FOR BOOKING")
-    print("Please insert your BOOKING NUMBER and your PAYMENT PROVIDER ID")
+    print("Please insert your BOOKING NUMBER and your PAYMENT PROVIDER ID | USERNAME | PASSWORD")
     user_input = input()
     try:
         booking_num, pay_provider_id = user_input.split(" ")
@@ -129,6 +129,8 @@ while process_complete == False:
     booking_payload = {}
     booking_payload['booking_num'] = booking_num
     booking_payload['pay_provider_id'] = pay_provider_id
+
+
 
 
     url = 'http://localhost:8000/payforbooking/'
@@ -141,6 +143,34 @@ while process_complete == False:
         print(str(response["invoice_id"]) + " " + str(response["pay_provider_id"]) + " " + response["url"] + " " + response["booking_num"] )
     except ValueError:
         print(b.text)
+
+    # loging with personal account
+    print("PLEASE ENTER YOUR PERSONAL USERNAME AND PASSWORD TO PAY FOR THE INVOICE")
+    user_input = input()
+    try:
+        username, password = user_input.split(" ")
+    except ValueError:
+        print("Please provide all the required parameters")
+
+
+
+    # payload['payprovider_ref_num'] = createinvoice_payload['payprovider_ref_num']
+    # payload['client_ref_num'] = booking_object.booking_number
+    # payload['amount'] = booking_object.booked_seats*booking_object.booking_flight.price
+    # print(json.dumps(payload))
+
+
+    session = requests.session()
+    b = session.post(response["url"]+"api/login/", data = {'username':username,'password':password})
+    print(b.status_code)
+    payload = {}
+    payload['payprovider_ref_num'] = response['payprovider_ref_num']
+    payload['client_ref_num'] = response["booking_num"]
+    payload['amount'] = response_r["tot_price"]
+
+    r = session.post(response["url"]+"api/payinvoice/", headers={'content-type':"application/json"}, data = json.dumps(payload))
+    print(r.status_code)
+    print(r.text)
 
 ########################### PART 5 ################################
 

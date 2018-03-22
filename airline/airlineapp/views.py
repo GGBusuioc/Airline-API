@@ -197,8 +197,6 @@ def payforbooking(request):
         # login
         session = requests.session()
         b = session.post(payment_object.website+"api/login/", data = {'username':payment_object.login_name,'password':payment_object.password})
-        print("The status ")
-        print(b.status_code)
 
         try:
             print("a booking object")
@@ -218,17 +216,17 @@ def payforbooking(request):
         payload['client_ref_num'] = booking_object.booking_number
         payload['amount'] = booking_object.booked_seats*booking_object.booking_flight.price
         print(json.dumps(payload))
+
         j = session.post(payment_object.website+"api/createinvoice/", headers={'content-type':"application/json"}, data = json.dumps(payload))
 
         print("Creating invoice")
         print(j.status_code)
+        print(j.text)
         print(j.headers['content-type'])
         print(j.json())
         createinvoice_payload = j.json()
 
         Invoice.objects.create(booking_number = booking_object, amount = booking_object.booked_seats*booking_object.booking_flight.price, stamp = createinvoice_payload['stamp_code'])
-
-
 
         try:
             invoice = Invoice.objects.get(booking_number=booking_object)
@@ -236,13 +234,30 @@ def payforbooking(request):
             return HttpResponse("Sorry. There is no INVOICE ID for %s" % (body['booking_num']), status=503)
 
 
+        payload = {}
+        payload['payprovider_ref_num'] = createinvoice_payload['payprovider_ref_num']
+        payload['client_ref_num'] = booking_object.booking_number
+        payload['amount'] = booking_object.booked_seats*booking_object.booking_flight.price
+        print(json.dumps(payload))
+
+
+        # personal = session.post(payment_object.website+"api/login/", data = {'username':body['username'],'password':body['password']})
+        # print("Personal request")
+        # print(personal.text)
+        #
+        # r = session.post(payment_object.website+"api/payinvoice/", headers={'content-type':"application/json"}, data = json.dumps(payload))
+        # print("Paying for the invoice")
+        # print(r.status_code)
+        # print(r.text)
+        # print(r.headers['content-type'])
+        # print(r.json())
 
         payload = {}
         payload["pay_provider_id"] = body["pay_provider_id"]
         payload["invoice_id"] = invoice.reference_number
         payload["booking_num"] = body["booking_num"]
-
         payload["url"] = payment_object.website
+        payload["payprovider_ref_num"] =  createinvoice_payload['payprovider_ref_num']
 
 
         if payload:
@@ -260,6 +275,8 @@ def finalizebooking(request):
         payload = {}
         payload["booking_num"] = booking_object.booking_number
         payload["booking_status"] = booking_object.booking_status
+
+
         print(json.dumps(payload))
         return HttpResponse(json.dumps(payload), status=201)
 
