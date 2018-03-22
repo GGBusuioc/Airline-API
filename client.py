@@ -22,7 +22,7 @@ while process_complete == False:
     dest_airport = "Luton"
     dep_date = "2018-03-01"
     num_passengers = 1
-    is_flex = "Y"
+    is_flex = "N"
 
 
     # except ValueError:
@@ -55,92 +55,119 @@ while process_complete == False:
         print(r.text)
 
 ########################### PART 2 ################################
-    # print("\n2. Book a flight\n")
+    print("\n2. Book a flight\n")
+
+    print("Pick a FLIGHT ID, FIRSTNAME, SURNAME, EMAIL, PHONE")
+
+    payload_list = []
+
+    print("PLEASE INTRODUCE THE FLIGHT_ID")
+    flight_id = input()
+
+    while num_passengers > 0:
+        print("PLEASE INTRODUCE THE INFORMATION FOR THE %d PASSENGER" % (num_passengers))
+        num_passengers = num_passengers - 1
+        user_input = input()
+        try:
+            first_name, surname, email, phone = user_input.split(" ")
+            print(first_name)
+        except ValueError:
+            print("Please provide all the required parameters")
+
+        print("These are the params provided: %s %s %s %s" % (first_name,  surname, email, phone))
+
+        url = 'http://localhost:8000/bookflight/'
+
+        payload_elem = {
+            'first_name': first_name,
+            'surname': surname,
+            'email': email,
+            'phone': phone,
+        }
+
+
+
+        payload_list.append(payload_elem)
+
+        passengers = {}
+        passengers['flight_id'] = flight_id
+        passengers['passengers'] = payload_list
     #
-    # print("Pick a FLIGHT ID, FIRSTNAME, SURNAME, EMAIL, PHONE")
-    #
-    # payload_list = []
-    #
-    # print("PLEASE INTRODUCE THE FLIGHT_ID")
-    # flight_id = input()
-    #
-    # while num_passengers > 0:
-    #     print("PLEASE INTRODUCE THE INFORMATION FOR THE %d PASSENGER" % (num_passengers))
-    #     num_passengers = num_passengers - 1
-    #     user_input = input()
-    #     try:
-    #         first_name, surname, email, phone = user_input.split(" ")
-    #         print(first_name)
-    #     except ValueError:
-    #         print("Please provide all the required parameters")
-    #
-    #     print("These are the params provided: %s %s %s %s" % (first_name,  surname, email, phone))
-    #
-    #     url = 'http://localhost:8000/bookflight/'
-    #
-    #     payload_elem = {
-    #         'first_name': first_name,
-    #         'surname': surname,
-    #         'email': email,
-    #         'phone': phone,
-    #     }
-    #
-    #
-    #
-    #     payload_list.append(payload_elem)
-    #
-    #     passengers = {}
-    #     passengers['flight_id'] = flight_id
-    #     passengers['passengers'] = payload_list
-    # #
-    #
-    # r = requests.post(url, data=json.dumps(passengers))
-    # response = json.loads(r.text)
-    # print("BOOKING NUMBER | BOOKING STATUS | TOTAL PRICE")
-    # print(response["booking_num"] + " " +response["booking_status"] + " " +str(response["tot_price"]))
+
+    r = requests.post(url, data=json.dumps(passengers))
+    # try statement needed
+    response = json.loads(r.text)
+    print("BOOKING NUMBER | BOOKING STATUS | TOTAL PRICE")
+    print(response["booking_num"] + " " +response["booking_status"] + " " +str(response["tot_price"]))
 
 ########################### PART 3 ################################
 
-    # print("3. Request PAYMENT METHODS")
-    #
-    # url = 'http://localhost:8000/paymentmethods/'
-    #
-    # b = requests.get(url)
-    # pay_providers = json.loads(b.text)
-    # print("PAYMENT PROVIDER ID | PAYMENT PROVIDER NAME")
-    #
-    # for result in pay_providers["pay_providers"]:
-    #     print(str(result['pay_provider_id']) + " " + result['pay_provider_name'])
-    #
+    print("3. Request PAYMENT METHODS")
+
+    url = 'http://localhost:8000/paymentmethods/'
+
+    b = requests.get(url)
+    pay_providers = json.loads(b.text)
+    print("PAYMENT PROVIDER ID | PAYMENT PROVIDER NAME")
+
+    for result in pay_providers["pay_providers"]:
+        print(str(result['pay_provider_id']) + " " + result['pay_provider_name'])
+
 
 
 
 ########################### PART 4 ################################
 
-    # print("4. PAY FOR BOOKING")
-    # print("Please insert your BOOKING NUMBER and your PAYMENT PROVIDER ID")
-    # user_input = input()
-    # try:
-    #     booking_num, pay_provider_id = user_input.split(" ")
-    # except ValueError:
-    #     print("Please provide all the required parameters")
-    #
-    # booking_payload = {}
-    # booking_payload['booking_num'] = booking_num
-    # booking_payload['pay_provider_id'] = pay_provider_id
-    #
-    #
-    # url = 'http://localhost:8000/payforbooking/'
-    # b = requests.post(url, data=json.dumps(booking_payload))
-    #
-    # try:
-    #     response = json.loads(b.text)
-    #     print(" INVOICE ID | URL | PAY PROVIDER ID | BOOKING NUM")
-    #     print(str(response["invoice_id"]) + " " + str(response["pay_provider_id"]) + " " + response["url"] + " " + response["booking_num"] )
-    # except ValueError:
-    #     print(b.text)
+    print("4. PAY FOR BOOKING")
+    print("Please insert your BOOKING NUMBER and your PAYMENT PROVIDER ID")
+    user_input = input()
+    try:
+        booking_num, pay_provider_id = user_input.split(" ")
+    except ValueError:
+        print("Please provide all the required parameters")
+
+    booking_payload = {}
+    booking_payload['booking_num'] = booking_num
+    booking_payload['pay_provider_id'] = pay_provider_id
+
+
+    url = 'http://localhost:8000/payforbooking/'
+    b = requests.post(url, data=json.dumps(booking_payload))
+
+    try:
+        response = json.loads(b.text)
+        print(" INVOICE ID | URL | PAY PROVIDER ID | BOOKING NUM")
+
+        print(str(response["invoice_id"]) + " " + str(response["pay_provider_id"]) + " " + response["url"] + " " + response["booking_num"] )
+    except ValueError:
+        print(b.text)
 
 ########################### PART 5 ################################
+
+    print("5. Finalize Booking")
+    print("Please insert your BOOKING NUMBER, PAYMENT PROVIDER IDENTIFIER, PAYMENT PROVIDER ELECTRONIC STAMP")
+    user_input = input()
+    try:
+        booking_num, pay_provider_id, stamp = user_input.split(" ")
+    except ValueError:
+        print("Please provide all the required parameters")
+
+    finalize_booking_payload = {}
+    finalize_booking_payload['booking_num'] = booking_num
+    finalize_booking_payload['pay_provider_id'] = pay_provider_id
+    finalize_booking_payload['stamp'] = stamp
+
+    url = 'http://localhost:8000/finalizebooking/'
+    b = requests.post(url, data=json.dumps(finalize_booking_payload))
+
+    try:
+        response = json.loads(b.text)
+        print(response)
+    except ValueError:
+        print(b.text)
+
+
+
 
 
 ########################### PART 6 ################################

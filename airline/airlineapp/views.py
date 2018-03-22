@@ -10,8 +10,13 @@ from django.views.decorators.csrf import csrf_exempt
 import random
 import string
 from django.db.models import Sum
+import requests
+
 
 def random_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for x in range(size))
+
+def stamp_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for x in range(size))
 
 def findflight(request, format=None):
@@ -53,6 +58,9 @@ def findflight(request, format=None):
                     all_entries = Flight.objects.filter(dep_airport=dep_airport,
                                                         dest_airport=dest_airport,
                                                         dep_datetime__day=datetime_object.day,
+                                                        dep_datetime__month=datetime_object.month,
+                                                        dep_datetime__year=datetime_object.year,
+
                                                         )
             else:
                 all_entries = []
@@ -132,7 +140,8 @@ def bookflight(request):
             payload['booking_num'] = booking_num
             payload['booking_status'] = "ON_HOLD"
             payload['tot_price'] = booking_object.booked_seats * flight_object.price
-
+            global tot_price
+            tot_price = booking_object.booked_seats * flight_object.price
         else:
             return HttpResponse("WE ARE FULL BOOKED SORRY!")
 
@@ -163,6 +172,11 @@ def paymentmethods(request):
 
 @csrf_exempt
 def payforbooking(request):
+    # loging with business account
+    # create invoice
+
+    # login send requests
+
     if request.method == "POST":
 
         body_unicode = request.body.decode('utf-8')
@@ -170,6 +184,18 @@ def payforbooking(request):
 
         #print(body)
         payment_object = PaymentProvider.objects.get(id=body["pay_provider_id"])
+
+        # login
+        session = requests.session()
+        b = session.post(payment_object.website+"api/login/", data = {'username':payment_object.login_name,'password':payment_object.password})
+        print("The status ")
+        print(b.status_code)
+
+
+
+
+
+
         #print(payment_object)
         try:
             print("a booking object")
@@ -177,6 +203,32 @@ def payforbooking(request):
 
         except:
             return HttpResponse("Sorry. The BOOKING NUMBER %s is not not storred in our database." % (body['booking_num']), status=503)
+
+        stamp = stamp_generator()
+
+        print("Printing the stamp")
+        print(stamp)
+        # create invoice
+        print("Printing the amount")
+        print(booking_object.booked_seats*booking_object.booking_flight.price)
+        Invoice.objects.create(booking_number = booking_object, amount = booking_object.booked_seats*booking_object.booking_flight.price, stamp = stamp)
+
+
+
+
+
+        #invoice pay provider id get pay provider object and get loging
+
+        # account num from pay providers_list#calculate ammout
+        # log in with busssiness
+        # create invoice
+        # respond to the client with the data of invoice invoice_id etc
+        #now user receives
+        # now ask user for personal account
+        # log in
+        # invoice reference,.... send this to payinvoice
+        # get stamp
+
 
         try:
             invoice = Invoice.objects.get(booking_number=booking_object)
@@ -197,9 +249,19 @@ def payforbooking(request):
             return HttpResponse(json.dumps(payload), status=201)
         else:
             return HttpResponse("Service Unavailable", status=503)
-
+@csrf_exempt
 def finalizebooking(request):
-    return ("WORK IN PROGRESS")
+    if request.method == "POST":
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        booking_object = Booking.objects.get(booking_number=body["booking_num"])
+        booking_object.booking_status = "CONFIRMED"
+        booking_object.save()
+        payload = {}
+        payload["booking_num"] = booking_object.booking_number
+        payload["booking_status"] = booking_object.booking_status
+        print(json.dumps(payload))
+        return HttpResponse(json.dumps(payload), status=201)
 
 def bookingstatus(request):
     if request.method=="GET":
