@@ -103,6 +103,18 @@ def bookflight(request):
         final_list = []
 
         booking_num = random_generator()
+        # booking_num = "FANQ33"
+        # book_obj = Booking.objects.get(booking_number = booking_num)
+        # print(book_obj.booking_number)
+        # if booking_num == book_obj.booking_number:
+        #     print("In the while")
+        #     booking_num = random_generator()
+        #     print("new booking num inside while")
+        #     print(booking_num)
+
+
+
+
         flight_object = Flight.objects.get(id=body['flight_id'])
 
         aircraft_type = flight_object.aircraft_type
@@ -172,10 +184,7 @@ def paymentmethods(request):
 
 @csrf_exempt
 def payforbooking(request):
-    # loging with business account
-    # create invoice
 
-    # login send requests
 
     if request.method == "POST":
 
@@ -191,12 +200,6 @@ def payforbooking(request):
         print("The status ")
         print(b.status_code)
 
-
-
-
-
-
-        #print(payment_object)
         try:
             print("a booking object")
             booking_object = Booking.objects.get(booking_number=body["booking_num"])
@@ -204,30 +207,27 @@ def payforbooking(request):
         except:
             return HttpResponse("Sorry. The BOOKING NUMBER %s is not not storred in our database." % (body['booking_num']), status=503)
 
-        stamp = stamp_generator()
 
-        print("Printing the stamp")
-        print(stamp)
-        # create invoice
-        print("Printing the amount")
+        # CREATE INVOICE IN THE PAYMENT provider
+        print("Checking params")
+        print(payment_object.account_number)
+        print(booking_object.booking_number)
         print(booking_object.booked_seats*booking_object.booking_flight.price)
-        Invoice.objects.create(booking_number = booking_object, amount = booking_object.booked_seats*booking_object.booking_flight.price, stamp = stamp)
+        payload = {}
+        payload['account_num'] = payment_object.account_number
+        payload['client_ref_num'] = booking_object.booking_number
+        payload['amount'] = booking_object.booked_seats*booking_object.booking_flight.price
+        print(json.dumps(payload))
+        j = session.post(payment_object.website+"api/createinvoice/", headers={'content-type':"application/json"}, data = json.dumps(payload))
 
+        print("Creating invoice")
+        print(j.status_code)
+        print(j.headers['content-type'])
+        print(j.json())
+        createinvoice_payload = j.json()
 
+        Invoice.objects.create(booking_number = booking_object, amount = booking_object.booked_seats*booking_object.booking_flight.price, stamp = createinvoice_payload['stamp_code'])
 
-
-
-        #invoice pay provider id get pay provider object and get loging
-
-        # account num from pay providers_list#calculate ammout
-        # log in with busssiness
-        # create invoice
-        # respond to the client with the data of invoice invoice_id etc
-        #now user receives
-        # now ask user for personal account
-        # log in
-        # invoice reference,.... send this to payinvoice
-        # get stamp
 
 
         try:
