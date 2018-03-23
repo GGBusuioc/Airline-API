@@ -29,7 +29,7 @@ while process_complete == False:
     #     print("Please provide all the required parameters")
 
 
-    url = 'http://localhost:8000/findflight/'
+    url = 'http://localhost:8000/api/findflight/'
     payload = {
         'dep_airport' : dep_airport,
         'dest_airport': dest_airport,
@@ -76,7 +76,7 @@ while process_complete == False:
 
         print("These are the params provided: %s %s %s %s" % (first_name,  surname, email, phone))
 
-        url = 'http://localhost:8000/bookflight/'
+        url = 'http://localhost:8000/api/bookflight/'
 
         payload_elem = {
             'first_name': first_name,
@@ -104,7 +104,7 @@ while process_complete == False:
 
     print("3. Request PAYMENT METHODS")
 
-    url = 'http://localhost:8000/paymentmethods/'
+    url = 'http://localhost:8000/api/paymentmethods/'
 
     b = requests.get(url)
     pay_providers = json.loads(b.text)
@@ -112,7 +112,6 @@ while process_complete == False:
 
     for result in pay_providers["pay_providers"]:
         print(str(result['pay_provider_id']) + " " + result['pay_provider_name'])
-
 
 
 
@@ -133,7 +132,7 @@ while process_complete == False:
 
 
 
-    url = 'http://localhost:8000/payforbooking/'
+    url = 'http://localhost:8000/api/payforbooking/'
     b = requests.post(url, data=json.dumps(booking_payload))
 
     try:
@@ -187,7 +186,7 @@ while process_complete == False:
     finalize_booking_payload['pay_provider_id'] = pay_provider_id
     finalize_booking_payload['stamp'] = stamp
 
-    url = 'http://localhost:8000/finalizebooking/'
+    url = 'http://localhost:8000/api/finalizebooking/'
     b = requests.post(url, data=json.dumps(finalize_booking_payload))
 
     try:
@@ -211,7 +210,7 @@ while process_complete == False:
     #     print("Please provide all the required parameters")
     # status_payload = {}
     # status_payload["booking_num"] = booking_num
-    # url = 'http://localhost:8000/bookingstatus/'
+    # url = 'http://localhost:8000/api/bookingstatus/'
     # r = requests.get(url, data=json.dumps(status_payload))
     #
     # try:
@@ -232,7 +231,7 @@ while process_complete == False:
         print("Please provide all the required parameters")
     cancel_payload = {}
     cancel_payload["booking_num"] = booking_num
-    url = 'http://localhost:8000/cancelbooking/'
+    url = 'http://localhost:8000/api/cancelbooking/'
     r = requests.post(url, data=json.dumps(cancel_payload))
 
     try:
