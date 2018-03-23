@@ -5,12 +5,12 @@ from . import views
 
 app_name = 'airlineapp'
 urlpatterns = [
-    path('findflight/', views.findflight),
-    path('bookflight/', views.bookflight),
-    path('paymentmethods/', views.paymentmethods),
-    path('payforbooking/', views.payforbooking),
+    path('api/findflight/', views.findflight),
+    path('api/bookflight/', views.bookflight),
+    path('api/paymentmethods/', views.paymentmethods),
+    path('api/payforbooking/', views.payforbooking),
 
-    path('finalizebooking/', views.finalizebooking),
-    path('bookingstatus/', views.bookingstatus),
-    path('cancelbooking/', views.cancelbooking),
+    path('api/finalizebooking/', views.finalizebooking),
+    path('api/bookingstatus/', views.bookingstatus),
+    path('api/cancelbooking/', views.cancelbooking),
 ]
