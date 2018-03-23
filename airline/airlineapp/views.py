@@ -49,12 +49,12 @@ def findflight(request, format=None):
 
 
         try:
-            if is_flex == 'Y':
+            if is_flex == True:
                 all_entries = Flight.objects.filter(dep_airport=dep_airport,
                                                     dest_airport=dest_airport,
                                                     dep_datetime__range=[datetime_object + datetime.timedelta(days=-3), datetime_object + datetime.timedelta(days=3)]
                                                     )
-            elif is_flex == 'N':
+            elif is_flex == False:
                     all_entries = Flight.objects.filter(dep_airport=dep_airport,
                                                         dest_airport=dest_airport,
                                                         dep_datetime__day=datetime_object.day,
