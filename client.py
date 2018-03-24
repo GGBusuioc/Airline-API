@@ -13,7 +13,7 @@ while process_complete == False:
 
 ########################### PART 1 ################################
     print("1. Find a flight")
-    print("Pick a DEPARTUE AIRPORT,  DESTINATION AIPORT, DATE (YYYY-MM-DD), NUMBER OF PASSENGERS, FLEXIBLE (Y or N only)")
+    print("Pick a DEPARTUE AIRPORT,  DESTINATION AIPORT, DATE (YYYY-MM-DD), NUMBER OF PASSENGERS, FLEXIBLE (True or False only)")
     #user_input = input()
     # try:
         #dep_airport, dest_airport, dep_date, num_passengers, is_flex = user_input.split(" ")
@@ -22,14 +22,22 @@ while process_complete == False:
     dest_airport = "Luton"
     dep_date = "2018-03-01"
     num_passengers = 1
-    is_flex = "N"
+    is_flex = False
 
 
     # except ValueError:
     #     print("Please provide all the required parameters")
 
+    # get all the airlines from the directory
+    url = 'http://directory.pythonanywhere.com/api/list/'
 
-    url = 'http://localhost:8000/api/findflight/'
+    payload = {
+        'company_type': "airline",
+    }
+
+    r = requests.get(url, headers={'content-type':"application/json"}, data=json.dumps(payload))
+    # print(r.text)
+    airlines = json.loads(r.text)
     payload = {
         'dep_airport' : dep_airport,
         'dest_airport': dest_airport,
@@ -37,22 +45,25 @@ while process_complete == False:
         'num_passengers': num_passengers,
         'is_flex': is_flex,
     }
+    for airline in airlines['company_list']:
+        # print friendly message for the user
+        print("Searching for flights in %s" % (airline['company_code']))
+        print(airline['url'])
+        r = requests.get(airline['url']+'/api/findflight/', headers={'content-type':"application/json"}, data=json.dumps(payload))
+        print(r.status_code)
+        try:
 
-    r = requests.get(url, data=json.dumps(payload))
-    try:
-        flights = json.loads(r.json())
-        #print(flights)
-        print("*************************************")
-        print("FLIGHT ID | FLIGHT NR | DEP AIR | DEST AIR | DEP D&T | ARI D&T | DURATION [H, M] | PRICE £")
-        print("\n")
+            flights = json.loads(r.json())
+            print("*************************************")
+            print("FLIGHT ID | FLIGHT NR | DEP AIR | DEST AIR | DEP D&T | ARI D&T | DURATION [H, M] | PRICE £")
+            print("\n")
 
+            for result in flights["flights"]:
+                print(str(result['flight_id']) + " " + result['flight_num'] + " " + result['dep_airport'] + " " + result['dest_airport']+ " " + str(result['dep_datetime']) + " " + str(result['arr_datetime']) + " " + str(result['duration']) + " " + str(result['price']))
+            print("*************************************")
 
-        for result in flights["flights"]:
-            print(str(result['flight_id']) + " " + result['flight_num'] + " " + result['dep_airport'] + " " + result['dest_airport']+ " " + str(result['dep_datetime']) + " " + str(result['arr_datetime']) + " " + str(result['duration']) + " " + str(result['price']))
-        print("*************************************")
-
-    except ValueError:
-        print(r.text)
+        except (ValueError, TypeError) as e:
+            print("Error status %s at %s. Reason: %s" % (r.status_code, airline['company_code'], e))
 
 ########################### PART 2 ################################
     print("\n2. Book a flight\n")
