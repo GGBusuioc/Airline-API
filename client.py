@@ -72,8 +72,14 @@ while process_complete == False:
 
     payload_list = []
 
-    print("PLEASE INTRODUCE THE FLIGHT_ID")
-    flight_id = input()
+    print("Please introduce the COMPANY NAME and the FLIGHT ID")
+    # this should be in a try
+    user_input = input()
+    try:
+        company_name, flight_id = user_input.split(" ")
+    except:
+        print("Wrong number of parameters")
+
 
     while num_passengers > 0:
         print("PLEASE INTRODUCE THE INFORMATION FOR THE %d PASSENGER" % (num_passengers))
@@ -87,7 +93,15 @@ while process_complete == False:
 
         print("These are the params provided: %s %s %s %s" % (first_name,  surname, email, phone))
 
-        url = 'http://localhost:8000/api/bookflight/'
+        for airline in airlines['company_list']:
+            print(airline['company_code'])
+            if airline['company_code'] == company_name:
+                chosen_url = airline["url"]
+            else:
+                print("Something wrong in getting the desired url")
+
+        print("You have chosen to buy from: %s" % chosen_url)
+
 
         payload_elem = {
             'first_name': first_name,
@@ -103,9 +117,10 @@ while process_complete == False:
         passengers = {}
         passengers['flight_id'] = flight_id
         passengers['passengers'] = payload_list
-    #
 
-    r = requests.post(url, data=json.dumps(passengers))
+
+    r = requests.post(chosen_url+'/api/bookflight/', headers={'content-type':"application/json"}, data=json.dumps(passengers))
+    print(r.status_code)
     # try statement needed
     response_r = json.loads(r.text)
     print("BOOKING NUMBER | BOOKING STATUS | TOTAL PRICE")
@@ -115,19 +130,21 @@ while process_complete == False:
 
     print("3. Request PAYMENT METHODS")
 
-    url = 'http://localhost:8000/api/paymentmethods/'
 
-    b = requests.get(url)
-    pay_providers = json.loads(b.text)
+
+
+    r = requests.get(chosen_url+'/api/paymentmethods', headers={'content-type':"application/json"})
+    # print(r.text)
+    payment_providers = json.loads(r.text)
     print("PAYMENT PROVIDER ID | PAYMENT PROVIDER NAME")
 
-    for result in pay_providers["pay_providers"]:
+    for result in payment_providers["pay_providers"]:
         print(str(result['pay_provider_id']) + " " + result['pay_provider_name'])
 
 
 
 ########################### PART 4 ################################
-
+    break
     print("4. PAY FOR BOOKING")
     print("Please insert your BOOKING NUMBER and your PAYMENT PROVIDER ID | USERNAME | PASSWORD")
     user_input = input()
