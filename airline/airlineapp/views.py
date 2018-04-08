@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse, Http404
+from django.http import HttpResponse, Http404
 import json
 from .models import *
 from django.core import serializers
@@ -90,7 +90,7 @@ def findflight(request, format=None):
 
 
         if findflight:
-            return JsonResponse(json.dumps(findflight), safe=False)
+            return HttpResponse(json.dumps(findflight))
         else:
             return HttpResponse("Service Unavailable", status=503)
 

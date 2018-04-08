@@ -25,19 +25,20 @@ while process_complete == False:
     is_flex = False
 
 
-    # except ValueError:
-    #     print("Please provide all the required parameters")
-
     # get all the airlines from the directory
     url = 'http://directory.pythonanywhere.com/api/list/'
 
-    payload = {
-        'company_type': "airline",
-    }
+    # payload = {
+    #     'company_type': "airline",
+    # }
+
 
     r = requests.get(url, headers={'content-type':"application/json"}, data=json.dumps(payload))
+    # r = requests.get('http://localhost:8000/api/findflight/', data=json.dumps(payload))
     # print(r.text)
+
     airlines = json.loads(r.text)
+
     payload = {
         'dep_airport' : dep_airport,
         'dest_airport': dest_airport,
@@ -53,7 +54,7 @@ while process_complete == False:
         print(r.status_code)
         try:
 
-            flights = json.loads(r.json())
+            flights = json.loads(r.text())
             print("*************************************")
             print("FLIGHT ID | FLIGHT NR | DEP AIR | DEST AIR | DEP D&T | ARI D&T | DURATION [H, M] | PRICE £")
             print("\n")
