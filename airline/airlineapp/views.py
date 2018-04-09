@@ -85,12 +85,13 @@ def findflight(request, format=None):
 
             flight_results.append(flight_result)
 
+
         findflight = {}
         findflight['flights'] = flight_results
 
 
 
-        if findflight:
+        if all_entries:
             return HttpResponse(json.dumps(findflight))
         else:
             return HttpResponse("Service Unavailable", status=503)
