@@ -74,19 +74,20 @@ def findflight(request, format=None):
         for entry in all_entries:
             flight_result = {}
 
-            flight_result['flight_id'] = entry.pk
+            flight_result['flight_id'] = str(entry.pk)
             flight_result['flight_num'] = entry.flight_num
             flight_result['dep_airport'] = str(dep_airport)
             flight_result['dest_airport'] = str(dest_airport)
             flight_result['dep_datetime'] = str(entry.dep_datetime)
             flight_result['arr_datetime'] = str(entry.arr_datetime)
             flight_result['duration'] = str(entry.duration)
-            flight_result['price'] = entry.price
+            flight_result['price'] = str(entry.price)
 
             flight_results.append(flight_result)
 
         findflight = {}
         findflight['flights'] = flight_results
+
 
 
         if findflight:
