@@ -3,7 +3,6 @@ from django.http import HttpResponse, Http404
 import json
 from .models import *
 from django.core import serializers
-from bson import json_util
 import datetime
 from datetime import timedelta
 from django.views.decorators.csrf import csrf_exempt
@@ -88,7 +87,8 @@ def findflight(request, format=None):
 
         findflight = {}
         findflight['flights'] = flight_results
-
+        print(findflight)
+        
 
 
         if all_entries:
