@@ -29,29 +29,28 @@ while process_complete == False:
     url = 'http://directory.pythonanywhere.com/api/list/'
 
     payload = {
+        'company_type': "payment",
+    }
+
+    r = requests.get(url, headers={'content-type':'application/json'}, data=json.dumps(payload))
+
+    print(r.text)
+
+
+
+
+    payload = {
         'company_type': "airline",
     }
 
-    payload = {
-        'dep_airport' : dep_airport,
-        'dest_airport': dest_airport,
-        'dep_date': dep_date,
-        'num_passengers': num_passengers,
-        'is_flex': is_flex,
-    }
 
 
-    # r = requests.get(url, headers={'content-type':'application/json'}, data=json.dumps(payload))
-    r = requests.get('http://ggbusuioc.pythonanywhere.com/api/findflight/', data=json.dumps(payload))
+
+
+    r = requests.get(url, headers={'content-type':'application/json'}, data=json.dumps(payload))
+    # r = requests.get('http://ggbusuioc.pythonanywhere.com/api/findflight/', data=json.dumps(payload))
     # r = requests.get('http://localhost:8000/api/findflight/', data=json.dumps(payload))
 
-
-
-    print(r.status_code)
-    deload = json.loads(r.text)
-    a = deload['flights']
-    for f in a:
-        print(f['dep_airport'])
 
     airlines = json.loads(r.text)
 
@@ -72,14 +71,13 @@ while process_complete == False:
         try:
             #flights = json.loads(r.text)
             flights = r.json()
-            print(flights)
             print("*************************************")
             print("FLIGHT ID | FLIGHT NR | DEP AIR | DEST AIR | DEP D&T | ARI D&T | DURATION [H, M] | PRICE £")
             print("\n")
 
             for result in flights['flights']:
-                print(result['flight_num'])
-                #print(str(result['flight_id']) + " " + result['flight_num'] + " " + result['dep_airport'] + " " + result['dest_airport'] + " " + result['dep_datetime'] + " " + result['arr_datetime'] + " " + result['duration'] + " " + str(result['price']))
+                #print(result['flight_num'])
+                print(str(result['flight_id']) + " " + result['flight_num'] + " " + result['dep_airport'] + " " + result['dest_airport'] + " " + result['dep_datetime'] + " " + result['arr_datetime'] + " " + result['duration'] + " " + str(result['price']))
             print("*************************************")
 
         except (ValueError, TypeError) as e:
@@ -149,8 +147,6 @@ while process_complete == False:
 ########################### PART 3 ################################
 
     print("3. Request PAYMENT METHODS")
-
-
 
 
     r = requests.get(chosen_url+'/api/paymentmethods', headers={'content-type':"application/json"})
