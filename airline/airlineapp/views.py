@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
 import json
+from bson import json_util
 from .models import *
 from django.core import serializers
 import datetime
@@ -23,19 +24,19 @@ def findflight(request, format=None):
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
 
+        hasError = []
+
         # test if the departue airport appears in the database
         try:
             dep_airport = Airport.objects.get(airport_name=body['dep_airport'])
         except:
-            return HttpResponse("Sorry. The DEPARTUE AIPORT %s is not stored in our airports database" % (body['dep_airport']), status=503)
+            return HttpResponse("Sorry. The DEPARTUE AIPORT %s is not stored in our airports database" % (body['dep_airport']), content_type="text/plain", status=503)
         # test if the destination airport appears in the database
         try:
             dest_airport = Airport.objects.get(airport_name=body['dest_airport'])
         except:
-            return HttpResponse("Sorry. The DESTINATION AIRPORT %s is not stored in our airports database" % (body['dest_airport']), status=503)
+            return HttpResponse("Sorry. The DESTINATION AIRPORT %s is not stored in our airports database" % (body['dest_airport']), content_type="text/plain", status=503)
 
-
-        #return HttpResponse("One of the airports is not found", status=503)
 
         dep_date = body['dep_date']
         num_passengers = body['num_passengers']
@@ -44,26 +45,25 @@ def findflight(request, format=None):
         try:
             datetime_object = datetime.datetime.strptime(dep_date, '%Y-%m-%d')
         except:
-            return HttpResponse("Sorry. %s does no comply to our format standards." % (body['dep_date']), status=503)
+            return HttpResponse("Sorry. %s does no comply to our format standards." % (body['dep_date']), content_type="text/plain", status=503)
 
 
         try:
-            if is_flex == True:
+            if is_flex == True or is_flex == 'y' or is_flex == 'Y' or is_flex == 'yes' or is_flex == 'Yes':
                 all_entries = Flight.objects.filter(dep_airport=dep_airport,
                                                     dest_airport=dest_airport,
                                                     dep_datetime__range=[datetime_object + datetime.timedelta(days=-3), datetime_object + datetime.timedelta(days=3)]
                                                     )
-            elif is_flex == False:
+            elif is_flex == False or is_flex == 'n' or is_flex == 'N' or is_flex == 'no' or is_flex == 'No':
                     all_entries = Flight.objects.filter(dep_airport=dep_airport,
                                                         dest_airport=dest_airport,
                                                         dep_datetime__day=datetime_object.day,
                                                         dep_datetime__month=datetime_object.month,
                                                         dep_datetime__year=datetime_object.year,
-
                                                         )
             else:
                 all_entries = []
-                return HttpResponse("Sorry. %s is not one of the two possible options for FLEXIBILITY" % (body['is_flex']), status=503)
+                return HttpResponse("Sorry. %s is not one of the two possible options for FLEXIBILITY. Try y/n." % (body['is_flex']), content_type="text/plain", status=503)
 
         except:
             return
@@ -87,14 +87,11 @@ def findflight(request, format=None):
 
         findflight = {}
         findflight['flights'] = flight_results
-        print(findflight)
-        
-
 
         if all_entries:
-            return HttpResponse(json.dumps(findflight))
+            return HttpResponse(json.dumps(findflight), content_type="application/json")
         else:
-            return HttpResponse("Service Unavailable", status=503)
+            return HttpResponse("Service Unavailable",  content_type="text/plain", status=503)
 
 @csrf_exempt
 def bookflight(request):
@@ -141,6 +138,7 @@ def bookflight(request):
                                     booking_status = "ON_HOLD",
                                     time_to_complete = 30,
             )
+            
             booking_object = Booking.objects.get(booking_number=booking_num)
             for result in body['passengers']:
                 first_name = result['first_name']

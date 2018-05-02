@@ -18,41 +18,56 @@ while process_complete == False:
     # try:
         #dep_airport, dest_airport, dep_date, num_passengers, is_flex = user_input.split(" ")
 
+
+
     dep_airport = "LBA"
     dest_airport = "MAN"
     dep_date = "2018-03-17"
     num_passengers = 1
-    is_flex = False
+    is_flex = 'p'
 
 
     # get all the airlines from the directory
     url = 'http://directory.pythonanywhere.com/api/list/'
 
-    payload = {
-        'company_type': "payment",
-    }
-
-    r = requests.get(url, headers={'content-type':'application/json'}, data=json.dumps(payload))
-
-    print(r.text)
-
-
-
+    # payload = {
+    #     'company_type': "payment",
+    # }
 
     payload = {
         'company_type': "airline",
     }
 
-
-
-
-
     r = requests.get(url, headers={'content-type':'application/json'}, data=json.dumps(payload))
-    # r = requests.get('http://ggbusuioc.pythonanywhere.com/api/findflight/', data=json.dumps(payload))
-    # r = requests.get('http://localhost:8000/api/findflight/', data=json.dumps(payload))
 
 
-    airlines = json.loads(r.text)
+
+
+
+    # r = requests.get(url, headers={'content-type':'application/json'}, data=json.dumps(payload))
+    #r = requests.get('http://ggbusuioc.pythonanywhere.com/api/findflight/', data=json.dumps(payload))
+    # r = requests.get('http://localhost:8000/api/findflight/', headers={'Content-Type': 'application/json'}, data=json.dumps(payload))
+    # print(r.headers['Content-Type'])
+    # print(r.text)
+
+    # print(r.status_code)
+    # if r.headers['Content-Type']=='application/json':
+    #     airlines = json.loads(r.text)
+    #
+    #
+    # if r.headers['Content-Type']=='text/plain':
+    #     print(r.text)
+
+
+    # if(r.headers.get('content-type')=='application/json'):
+    #     print("APPLICATION/JSON")
+    # else:
+    #     print(r.text)
+
+
+
+    # print(airlines)
+    # print(airlines)
 
     payload = {
         'dep_airport' : dep_airport,
@@ -62,6 +77,9 @@ while process_complete == False:
         'is_flex': is_flex,
     }
 
+
+    airlines = json.loads(r.text)
+
     for airline in airlines['company_list']:
         # print friendly message for the user
         print("Searching for flights in %s" % (airline['company_code']))
@@ -69,15 +87,16 @@ while process_complete == False:
         r = requests.get(airline['url']+'/api/findflight/', headers={'content-type':'application/json'}, data=json.dumps(payload))
         print(r.status_code)
         try:
-            #flights = json.loads(r.text)
             flights = r.json()
             print("*************************************")
+            print("                                     ")
+
             print("FLIGHT ID | FLIGHT NR | DEP AIR | DEST AIR | DEP D&T | ARI D&T | DURATION [H, M] | PRICE £")
             print("\n")
 
             for result in flights['flights']:
-                #print(result['flight_num'])
                 print(str(result['flight_id']) + " " + result['flight_num'] + " " + result['dep_airport'] + " " + result['dest_airport'] + " " + result['dep_datetime'] + " " + result['arr_datetime'] + " " + result['duration'] + " " + str(result['price']))
+            print("                                     ")
             print("*************************************")
 
         except (ValueError, TypeError) as e:
