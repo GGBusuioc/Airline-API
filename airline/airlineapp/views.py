@@ -102,17 +102,6 @@ def bookflight(request):
         final_list = []
 
         booking_num = random_generator()
-        # booking_num = "FANQ33"
-        # book_obj = Booking.objects.get(booking_number = booking_num)
-        # print(book_obj.booking_number)
-        # if booking_num == book_obj.booking_number:
-        #     print("In the while")
-        #     booking_num = random_generator()
-        #     print("new booking num inside while")
-        #     print(booking_num)
-
-
-
 
         flight_object = Flight.objects.get(id=body['flight_id'])
 
@@ -122,7 +111,6 @@ def bookflight(request):
         thesum = Booking.objects.filter(booking_flight=flight_object).aggregate(Sum('booked_seats'))
 
         # find the bookings already made
-
 
         # should check if a booking can be made
         if(thesum['booked_seats__sum'] is None):
@@ -138,7 +126,7 @@ def bookflight(request):
                                     booking_status = "ON_HOLD",
                                     time_to_complete = 30,
             )
-            
+
             booking_object = Booking.objects.get(booking_number=booking_num)
             for result in body['passengers']:
                 first_name = result['first_name']
@@ -155,13 +143,13 @@ def bookflight(request):
             global tot_price
             tot_price = booking_object.booked_seats * flight_object.price
         else:
-            return HttpResponse("WE ARE FULL BOOKED SORRY!")
+            return HttpResponse("WE ARE FULL BOOKED SORRY!", content_type="text/plain")
 
 
         if payload:
-            return HttpResponse(json.dumps(payload), status=201)
+            return HttpResponse(json.dumps(payload), content_type="application/json", status=201)
         else:
-            return Http404("So  mething went wrong ")
+            return HttpResponse("Something went wrong ", content_type="text/plain")
 
 def paymentmethods(request):
     if request.method == "GET":
@@ -178,9 +166,9 @@ def paymentmethods(request):
         payload = {}
         payload['pay_providers'] = providers_list
         if payload:
-            return HttpResponse(json.dumps(payload))
+            return HttpResponse(json.dumps(payload), content_type="application/json")
         else:
-            return HttpResponse("Service Unavailable", status=503)
+            return HttpResponse("Service Unavailable", content_type="text/plain" ,status=503)
 
 @csrf_exempt
 def payforbooking(request):
@@ -203,7 +191,7 @@ def payforbooking(request):
             booking_object = Booking.objects.get(booking_number=body["booking_num"])
 
         except:
-            return HttpResponse("Sorry. The BOOKING NUMBER %s is not not storred in our database." % (body['booking_num']), status=503)
+            return HttpResponse("Sorry. The BOOKING NUMBER %s is not not storred in our database." % (body['booking_num']), content_type="text/plain", status=503)
 
 
         # CREATE INVOICE IN THE PAYMENT provider
@@ -231,7 +219,7 @@ def payforbooking(request):
         try:
             invoice = Invoice.objects.get(booking_number=booking_object)
         except:
-            return HttpResponse("Sorry. There is no INVOICE ID for %s" % (body['booking_num']), status=503)
+            return HttpResponse("Sorry. There is no INVOICE ID for %s" % (body['booking_num']),  content_type="text/plain", status=503)
 
 
         payload = {}
@@ -261,9 +249,11 @@ def payforbooking(request):
 
 
         if payload:
-            return HttpResponse(json.dumps(payload), status=201)
+            return HttpResponse(json.dumps(payload), content_type="application/json",status=201)
         else:
-            return HttpResponse("Service Unavailable", status=503)
+            return HttpResponse("Service Unavailable",  content_type="text/plain", status=503)
+
+
 @csrf_exempt
 def finalizebooking(request):
     if request.method == "POST":
