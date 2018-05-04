@@ -25,7 +25,7 @@ SECRET_KEY = '*f+a1z5+hmns_i-*n6=60v@ijub50dwrlu)=q&44dqdd%oa9+$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['http://ggbusuioc.pythonanywhere.com/', 'localhost:8000']
 
 
 # Application definition
