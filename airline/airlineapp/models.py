@@ -90,7 +90,9 @@ class PaymentProvider(models.Model):
 
 class Invoice(models.Model):
     #  unique reference number for this invoice at the airline’s database
-    reference_number = models.IntegerField(primary_key=True, editable=False) #--- substituted by the id
+    # reference_number = models.IntegerField(primary_key=True, editable=False) #--- substituted by the id
+    # reference_number = models.CharField(max_length=20, default="unknown") #--- substituted by the id
+
     # unique reference number for this invoice within the database of the payment service provider
     #  booking number for which the invoice was issued.
     booking_number = models.ForeignKey('Booking', on_delete=models.CASCADE)

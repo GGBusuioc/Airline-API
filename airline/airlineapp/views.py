@@ -24,8 +24,6 @@ def findflight(request, format=None):
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
 
-        hasError = []
-
         # test if the departue airport appears in the database
         try:
             dep_airport = Airport.objects.get(airport_name=body['dep_airport'])
@@ -172,84 +170,94 @@ def paymentmethods(request):
 
 @csrf_exempt
 def payforbooking(request):
-
-
     if request.method == "POST":
 
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
 
-        #print(body)
         payment_object = PaymentProvider.objects.get(id=body["pay_provider_id"])
+        print("SSSSSSSSSSSSSSSs")
+        print(payment_object)
 
-        # login
         session = requests.session()
-        b = session.post(payment_object.website+"api/login/", data = {'username':payment_object.login_name,'password':payment_object.password})
 
+        print(payment_object.login_name)
+        print(payment_object.password)
+        b = session.post(payment_object.website+"api/login/",headers={'content-type':"application/x-www-form-urlencoded"}, data = {'username':payment_object.login_name,'password':payment_object.password})
+
+
+
+        print(b.status_code)
+        #
         try:
-            print("a booking object")
             booking_object = Booking.objects.get(booking_number=body["booking_num"])
 
         except:
             return HttpResponse("Sorry. The BOOKING NUMBER %s is not not storred in our database." % (body['booking_num']), content_type="text/plain", status=503)
 
+        print(booking_object)
 
-        # CREATE INVOICE IN THE PAYMENT provider
-        print("Checking params")
-        print(payment_object.account_number)
-        print(booking_object.booking_number)
-        print(booking_object.booked_seats*booking_object.booking_flight.price)
+        #
+        # # CREATE INVOICE IN THE PAYMENT provider
         payload = {}
         payload['account_num'] = payment_object.account_number
         payload['client_ref_num'] = booking_object.booking_number
         payload['amount'] = booking_object.booked_seats*booking_object.booking_flight.price
         print(json.dumps(payload))
 
-        j = session.post(payment_object.website+"api/createinvoice/", headers={'content-type':"application/json"}, data = json.dumps(payload))
 
-        print("Creating invoice")
-        print(j.status_code)
-        print(j.text)
-        print(j.headers['content-type'])
-        print(j.json())
-        createinvoice_payload = j.json()
 
-        Invoice.objects.create(booking_number = booking_object, amount = booking_object.booked_seats*booking_object.booking_flight.price, stamp = createinvoice_payload['stamp_code'])
+        r = session.post(payment_object.website+"api/createinvoice/", headers={'content-type':"application/json"}, data = json.dumps(payload))
+
+        print(r.status_code)
+        #
+        createinvoice_payload = json.loads(r.text)
+        print("CREATE INVOICE PAYLOAd")
+        print(createinvoice_payload)
+
+
+        print(booking_object.booking_number)
+        print(booking_object.booked_seats*booking_object.booking_flight.price)
+        print(createinvoice_payload['stamp_code'])
+
+
+        try:
+            invoice = Invoice(booking_number = booking_object, amount = booking_object.booked_seats*booking_object.booking_flight.price, stamp = createinvoice_payload['stamp_code'])
+            invoice.save()
+        except:
+            print("CE PULA MEA")
+
 
         try:
             invoice = Invoice.objects.get(booking_number=booking_object)
         except:
             return HttpResponse("Sorry. There is no INVOICE ID for %s" % (body['booking_num']),  content_type="text/plain", status=503)
 
-
         payload = {}
         payload['payprovider_ref_num'] = createinvoice_payload['payprovider_ref_num']
         payload['client_ref_num'] = booking_object.booking_number
         payload['amount'] = booking_object.booked_seats*booking_object.booking_flight.price
-        print(json.dumps(payload))
+        # #
+        # #
+        print(payload)
+        r = session.post(payment_object.website+"api/payinvoice/", headers={'content-type':"application/json"}, data = json.dumps(payload))
 
-
-        # personal = session.post(payment_object.website+"api/login/", data = {'username':body['username'],'password':body['password']})
-        # print("Personal request")
-        # print(personal.text)
-        #
-        # r = session.post(payment_object.website+"api/payinvoice/", headers={'content-type':"application/json"}, data = json.dumps(payload))
-        # print("Paying for the invoice")
-        # print(r.status_code)
-        # print(r.text)
-        # print(r.headers['content-type'])
-        # print(r.json())
+        print(r.status_code)
 
         payload = {}
         payload["pay_provider_id"] = body["pay_provider_id"]
-        payload["invoice_id"] = invoice.reference_number
+        payload["invoice_id"] = invoice.id
         payload["booking_num"] = body["booking_num"]
         payload["url"] = payment_object.website
         payload["payprovider_ref_num"] =  createinvoice_payload['payprovider_ref_num']
+        #
+        print("Check payload")
+        print(payload)
+
 
 
         if payload:
-            return HttpResponse(json.dumps(payload), content_type="application/json",status=201)
+            return HttpResponse(json.dumps(payload), content_type="application/json", status=201)
         else:
             return HttpResponse("Service Unavailable",  content_type="text/plain", status=503)
 
@@ -268,12 +276,14 @@ def finalizebooking(request):
 
 
         print(json.dumps(payload))
-        return HttpResponse(json.dumps(payload), status=201)
+        return HttpResponse(json.dumps(payload), content_type="application/json", status=201)
 
 def bookingstatus(request):
     if request.method=="GET":
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
+        print("server")
+        print(body['booking_num'])
 
         try:
             booking_object = Booking.objects.get(booking_number=body["booking_num"])
@@ -281,7 +291,19 @@ def bookingstatus(request):
             return HttpResponse("Sorry. There is no BOOKING for the following BOOKING NUMBER: %s" % (body['booking_num']), status=503)
 
 
+        # print(" before flight object")
+
+        print("BEFORE")
+        print(booking_object)
+        print(body)
+        print(booking_object.booking_flight)
         flight_object = Flight.objects.get(flight_num=booking_object.booking_flight)
+
+        print(flight_object)
+
+        print("AFTER")
+
+        print("after object")
 
 
 
@@ -295,7 +317,7 @@ def bookingstatus(request):
         payload["arr_datetime"] = str(flight_object.arr_datetime)
         payload["duration"] = str(flight_object.duration)
         if payload:
-            return HttpResponse(json.dumps(payload))
+            return HttpResponse(json.dumps(payload), content_type="application/json", status=200)
         else:
             return HttpResponse("Service Unavailable", status=503)
 
@@ -319,8 +341,10 @@ def cancelbooking(request):
         payload = {}
         payload["booking_num"] = body["booking_num"]
         payload["booking_status"] = "CANCELLED"
+        print("REACHED PAYLOAD")
+        print(payload)
 
         if payload:
-            return HttpResponse(json.dumps(payload), status=201)
+            return HttpResponse(json.dumps(payload), content_type="application/json", status=201)
         else:
             return HttpResponse("Service Unavailable", status=503)
