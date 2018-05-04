@@ -211,7 +211,7 @@ while True:
     if(option == "8"):
         print("           8. CREATE INVOICE             ")
 
-        print("Amount number: ")
+        print("Account number: ")
         account_num = input()
         print("Client reference number(?): ")
         client_ref_num = input()

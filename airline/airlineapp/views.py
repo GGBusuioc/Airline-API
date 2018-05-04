@@ -235,6 +235,7 @@ def payforbooking(request):
 
         payload = {}
         payload['payprovider_ref_num'] = createinvoice_payload['payprovider_ref_num']
+        print(createinvoice_payload['payprovider_ref_num'])
         payload['client_ref_num'] = booking_object.booking_number
         payload['amount'] = booking_object.booked_seats*booking_object.booking_flight.price
         # #
