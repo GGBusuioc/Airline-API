@@ -49,10 +49,7 @@ class Booking(models.Model):
     booking_flight = models.ForeignKey('Flight', on_delete=models.CASCADE)
     # number of seats booked.
     booked_seats = models.IntegerField(default="unspecified")
-    # passengers
-    #passenger = models.ForeignKey('Passenger', on_delete=models.CASCADE)
-    # status of this booking (ONHOLD, CONFIRMED, CANCELLED, or TRAVELLED)
-    #STATUS_CHOICES = (('ONHOLD', 'ONHOLD'), ('CONFIRMED','CONFIRMED'), ('CANCELLED', 'CANCELLED'), ('TRAVELLED','TRAVELLED'))
+    # booking status
     booking_status = models.CharField(max_length=10, default='ON_HOLD')
     #  time this booking will no longer be valid if the status of the booking is ONHOLD.
     time_to_complete = models.IntegerField(null=True)
@@ -90,10 +87,7 @@ class PaymentProvider(models.Model):
 
 class Invoice(models.Model):
     #  unique reference number for this invoice at the airline’s database
-    # reference_number = models.IntegerField(primary_key=True, editable=False) #--- substituted by the id
-    # reference_number = models.CharField(max_length=20, default="unknown") #--- substituted by the id
-
-    # unique reference number for this invoice within the database of the payment service provider
+    # the invoice ID has been used instead of the reference number
     #  booking number for which the invoice was issued.
     booking_number = models.ForeignKey('Booking', on_delete=models.CASCADE)
     #  amount of the invoice

@@ -176,56 +176,31 @@ def payforbooking(request):
         body = json.loads(body_unicode)
 
         payment_object = PaymentProvider.objects.get(id=body["pay_provider_id"])
-        print("SSSSSSSSSSSSSSSs")
-        print(payment_object)
 
         session = requests.session()
 
-        print(payment_object.login_name)
-        print(payment_object.password)
         b = session.post(payment_object.website+"api/login/",headers={'content-type':"application/x-www-form-urlencoded"}, data = {'username':payment_object.login_name,'password':payment_object.password})
 
-
-
-        print(b.status_code)
-        #
         try:
             booking_object = Booking.objects.get(booking_number=body["booking_num"])
 
         except:
             return HttpResponse("Sorry. The BOOKING NUMBER %s is not not storred in our database." % (body['booking_num']), content_type="text/plain", status=503)
 
-        print(booking_object)
-
-        #
-        # # CREATE INVOICE IN THE PAYMENT provider
         payload = {}
         payload['account_num'] = payment_object.account_number
         payload['client_ref_num'] = booking_object.booking_number
         payload['amount'] = booking_object.booked_seats*booking_object.booking_flight.price
-        print(json.dumps(payload))
-
-
 
         r = session.post(payment_object.website+"api/createinvoice/", headers={'content-type':"application/json"}, data = json.dumps(payload))
 
-        print(r.status_code)
-        #
         createinvoice_payload = json.loads(r.text)
-        print("CREATE INVOICE PAYLOAd")
-        print(createinvoice_payload)
-
-
-        print(booking_object.booking_number)
-        print(booking_object.booked_seats*booking_object.booking_flight.price)
-        print(createinvoice_payload['stamp_code'])
-
 
         try:
             invoice = Invoice(booking_number = booking_object, amount = booking_object.booked_seats*booking_object.booking_flight.price, stamp = createinvoice_payload['stamp_code'])
             invoice.save()
         except:
-            print("CE PULA MEA")
+            print("Invoice not created")
 
 
         try:
@@ -235,15 +210,11 @@ def payforbooking(request):
 
         payload = {}
         payload['payprovider_ref_num'] = createinvoice_payload['payprovider_ref_num']
-        print(createinvoice_payload['payprovider_ref_num'])
         payload['client_ref_num'] = booking_object.booking_number
         payload['amount'] = booking_object.booked_seats*booking_object.booking_flight.price
-        # #
-        # #
-        print(payload)
+
         r = session.post(payment_object.website+"api/payinvoice/", headers={'content-type':"application/json"}, data = json.dumps(payload))
 
-        print(r.status_code)
 
         payload = {}
         payload["pay_provider_id"] = body["pay_provider_id"]
@@ -252,9 +223,6 @@ def payforbooking(request):
         payload["url"] = payment_object.website
         payload["payprovider_ref_num"] =  createinvoice_payload['payprovider_ref_num']
         #
-        print("Check payload")
-        print(payload)
-
 
 
         if payload:
@@ -275,38 +243,19 @@ def finalizebooking(request):
         payload["booking_num"] = booking_object.booking_number
         payload["booking_status"] = booking_object.booking_status
 
-
-        print(json.dumps(payload))
         return HttpResponse(json.dumps(payload), content_type="application/json", status=201)
 
 def bookingstatus(request):
     if request.method=="GET":
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
-        print("server")
-        print(body['booking_num'])
 
         try:
             booking_object = Booking.objects.get(booking_number=body["booking_num"])
         except:
             return HttpResponse("Sorry. There is no BOOKING for the following BOOKING NUMBER: %s" % (body['booking_num']), status=503)
 
-
-        # print(" before flight object")
-
-        print("BEFORE")
-        print(booking_object)
-        print(body)
-        print(booking_object.booking_flight)
         flight_object = Flight.objects.get(flight_num=booking_object.booking_flight)
-
-        print(flight_object)
-
-        print("AFTER")
-
-        print("after object")
-
-
 
         payload = {}
         payload["booking_num"] = body["booking_num"]
@@ -335,15 +284,12 @@ def cancelbooking(request):
         except:
             return HttpResponse("Sorry. There is no BOOKING for the following BOOKING NUMBER: %s" % (body['booking_num']), status=503)
 
-        print("Before changing the cancel booking")
         booking_object.booking_status = "CANCELLED"
         booking_object.save()
 
         payload = {}
         payload["booking_num"] = body["booking_num"]
         payload["booking_status"] = "CANCELLED"
-        print("REACHED PAYLOAD")
-        print(payload)
 
         if payload:
             return HttpResponse(json.dumps(payload), content_type="application/json", status=201)
